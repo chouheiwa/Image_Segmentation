@@ -5,28 +5,28 @@ TENSORBOARD_PATH='/root/tf-logs'
 
 # U_Net/R2U_Net/AttU_Net/R2AttU_Net
 
-python -m main.py \
+python main.py \
   --train_path=$TRAIN_PATH \
   --verify_path=$VERIFY_PATH \
   --test_path=$TEST_PATH \
   --tensorboard_path=$TENSORBOARD_PATH \
   --model_type='U_Net'
 
-python -m main.py \
+python main.py \
   --train_path=$TRAIN_PATH \
   --verify_path=$VERIFY_PATH \
   --test_path=$TEST_PATH \
   --tensorboard_path=$TENSORBOARD_PATH \
   --model_type='R2U_Net'
 
-python -m main.py \
+python main.py \
   --train_path=$TRAIN_PATH \
   --verify_path=$VERIFY_PATH \
   --test_path=$TEST_PATH \
   --tensorboard_path=$TENSORBOARD_PATH \
   --model_type='AttU_Net'
 
-python -m main.py \
+python main.py \
   --train_path=$TRAIN_PATH \
   --verify_path=$VERIFY_PATH \
   --test_path=$TEST_PATH \
