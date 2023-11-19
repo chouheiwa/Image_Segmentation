@@ -4,6 +4,7 @@ from solver import Solver
 from data_loader import get_loader
 from torch.backends import cudnn
 import random
+from yaml_reader import read_yaml
 
 
 def main(config):
@@ -66,6 +67,9 @@ def main(config):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
+    parser.add_argument('--yaml_path', type=str, default=None,
+                        help='If you set the yaml_path, the config will be read from the yaml file, '
+                             'all the other arguments will be ignored.')
     # model hyper-parameters
     parser.add_argument('--image_size', type=int, default=224)
     parser.add_argument('--t', type=int, default=3, help='t for Recurrent step of R2U_Net or R2AttU_Net')
@@ -98,4 +102,6 @@ if __name__ == '__main__':
     parser.add_argument('--cuda_idx', type=int, default=1)
 
     config = parser.parse_args()
+    if config.yaml_path is not None:
+        config = read_yaml(config.yaml_path)
     main(config)

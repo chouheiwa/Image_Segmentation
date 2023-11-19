@@ -1,0 +1,29 @@
+image_size: 224
+t: 3  # t for Recurrent step of R2U_Net or R2AttU_Net
+
+# training hyper-parameters
+img_ch: 3
+output_ch: 1
+num_epochs: 100
+num_epochs_decay: 70
+batch_size: 1
+num_workers: 8
+lr: 0.0002
+beta1: 0.5  # momentum1 in Adam
+beta2: 0.999  # momentum2 in Adam
+augmentation_prob: 0.4
+
+log_step: 2
+val_step: 2
+
+# misc
+mode: train
+model_type: U_Net  # U_Net/R2U_Net/AttU_Net/R2AttU_Net
+model_path: './models'
+train_path: './dataset/train/'
+valid_path: './dataset/valid/'
+test_path: './dataset/test/'
+result_path: './result/'
+tensorboard_path: './tensorboard/'
+
+cuda_idx: 1
