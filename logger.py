@@ -9,13 +9,13 @@ class LoggerScalar:
         assert self.base_dir is not None, 'Please set base_dir first'
         epoch = my_fantastic_logging['epoch']
         with SummaryWriter(log_dir=self.base_dir) as writer:
-            if my_fantastic_logging['loss'] is not None:
+            if 'loss' in my_fantastic_logging:
                 writer.add_scalar(
                     tag=f"{my_fantastic_logging['type']}/Loss",
                     scalar_value=my_fantastic_logging['loss'],
                     global_step=epoch
                 )
-            if my_fantastic_logging['lr'] is not None:
+            if 'lr' in my_fantastic_logging:
                 writer.add_scalar(
                     tag=f"{my_fantastic_logging['type']}/Learning Rate",
                     scalar_value=my_fantastic_logging['lr'],
