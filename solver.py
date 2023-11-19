@@ -3,6 +3,7 @@ import os
 
 import torch.nn.functional as F
 from torch import optim
+from tqdm import tqdm
 
 from evaluation import *
 from logger import LoggerScalar
@@ -126,7 +127,7 @@ class Solver(object):
             DC = 0.  # Dice Coefficient
             length = 0
 
-            for i, (images, GT) in enumerate(self.train_loader):
+            for i, (images, GT) in enumerate(tqdm(self.train_loader, desc=f"Epoch {epoch} Training Processing")):
                 # GT : Ground Truth
 
                 images = images.to(self.device)
