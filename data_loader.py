@@ -15,13 +15,16 @@ class ImageFolder(data.Dataset):
         self.root = root
 
         # GT : Ground Truth
-        self.GT_paths = root[:-1] + '_GT/'
+        self.GT_paths = self.get_path(root) + '_GT/'
         self.image_paths = list(map(lambda x: os.path.join(root, x), os.listdir(root)))
         self.image_size = image_size
         self.mode = mode
         self.RotationDegree = [0, 90, 180, 270]
         self.augmentation_prob = augmentation_prob
         print("image count in {} path :{}".format(self.mode, len(self.image_paths)))
+
+    def get_path(self, path):
+        return path if not path.endswith('/') else path[:-1]
 
     def __getitem__(self, index):
         """Reads an image from a file and preprocesses it and returns."""
