@@ -41,13 +41,14 @@ class Solver(object):
 
         # Path
         self.model_path = config.model_path
+        self.tensorboard_path = config.tensorboard_path
         self.result_path = config.result_path
         self.mode = config.mode
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model_type = config.model_type
         self.t = config.t
-        self.log = LoggerScalar(os.path.join(self.model_path, 'log'))
+        self.log = LoggerScalar(os.path.join(self.tensorboard_path, self.model_type))
         self.build_model()
 
     def build_model(self):
@@ -62,7 +63,7 @@ class Solver(object):
             self.unet = R2AttU_Net(img_ch=3, output_ch=1, t=self.t)
 
         self.optimizer = optim.Adam(list(self.unet.parameters()),
-                                    self.lr, [self.beta1, self.beta2])
+                                    self.lr, (self.beta1, self.beta2))
         self.unet.to(self.device)
 
     # self.print_network(self.unet, self.model_type)

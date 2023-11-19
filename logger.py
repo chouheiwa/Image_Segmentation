@@ -1,4 +1,4 @@
-from visualdl import LogWriter
+from torch.utils.tensorboard import SummaryWriter
 
 
 class LoggerScalar:
@@ -8,51 +8,51 @@ class LoggerScalar:
     def plot_data(self, my_fantastic_logging):
         assert self.base_dir is not None, 'Please set base_dir first'
         epoch = my_fantastic_logging['epoch']
-        with LogWriter(logdir=self.base_dir) as writer:
+        with SummaryWriter(log_dir=self.base_dir) as writer:
             if my_fantastic_logging['loss'] is not None:
                 writer.add_scalar(
                     tag=f"{my_fantastic_logging['type']}/Loss",
-                    step=epoch,
-                    value=my_fantastic_logging['loss']
+                    scalar_value=my_fantastic_logging['loss'],
+                    global_step=epoch
                 )
             if my_fantastic_logging['lr'] is not None:
                 writer.add_scalar(
                     tag=f"{my_fantastic_logging['type']}/Learning Rate",
-                    step=epoch,
-                    value=my_fantastic_logging['lr']
+                    scalar_value=my_fantastic_logging['lr'],
+                    global_step=epoch
                 )
             writer.add_scalar(
                 tag=f"{my_fantastic_logging['type']}/Accuracy",
-                step=epoch,
-                value=my_fantastic_logging['acc']
+                scalar_value=my_fantastic_logging['acc'],
+                global_step=epoch
             )
             writer.add_scalar(
                 tag=f"{my_fantastic_logging['type']}/Sensitivity (Recall)",
-                step=epoch,
-                value=my_fantastic_logging['SE']
+                scalar_value=my_fantastic_logging['SE'],
+                global_step=epoch
             )
             writer.add_scalar(
                 tag=f"{my_fantastic_logging['type']}/Specificity",
-                step=epoch,
-                value=my_fantastic_logging['SP']
+                scalar_value=my_fantastic_logging['SP'],
+                global_step=epoch
             )
             writer.add_scalar(
                 tag=f"{my_fantastic_logging['type']}/Precision",
-                step=epoch,
-                value=my_fantastic_logging['PC']
+                scalar_value=my_fantastic_logging['PC'],
+                global_step=epoch
             )
             writer.add_scalar(
                 tag=f"{my_fantastic_logging['type']}/F1 Score",
-                step=epoch,
-                value=my_fantastic_logging['F1']
+                scalar_value=my_fantastic_logging['F1'],
+                global_step=epoch
             )
             writer.add_scalar(
                 tag=f"{my_fantastic_logging['type']}/Jaccard Similarity",
-                step=epoch,
-                value=my_fantastic_logging['JS']
+                scalar_value=my_fantastic_logging['JS'],
+                global_step=epoch
             )
             writer.add_scalar(
                 tag=f"{my_fantastic_logging['type']}/Dice Coefficient",
-                step=epoch,
-                value=my_fantastic_logging['DC']
+                scalar_value=my_fantastic_logging['DC'],
+                global_step=epoch
             )
