@@ -1,6 +1,6 @@
 image_size: 224
 t: 3  # t for Recurrent step of R2U_Net or R2AttU_Net
-
+support_image_types: ['jpg', 'png', 'jpeg', 'bmp', 'tif', 'tiff', 'JPG', 'PNG', 'JPEG', 'BMP', 'TIF', 'TIFF']
 # training hyper-parameters
 img_ch: 3
 output_ch: 1

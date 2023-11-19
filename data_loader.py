@@ -1,5 +1,6 @@
 import os
 import random
+from os.path import isfile, join, splitext
 from random import shuffle
 import numpy as np
 import torch
@@ -10,13 +11,19 @@ from PIL import Image
 
 
 class ImageFolder(data.Dataset):
-    def __init__(self, root, image_size=224, mode='train', augmentation_prob=0.4):
+    def __init__(self, root, image_size=224, mode='train', augmentation_prob=0.4,
+                 support_types=None):
         """Initializes image paths and preprocessing module."""
+        if support_types is None:
+            support_types = ['jpg', 'png', 'jpeg', 'bmp', 'tif', 'tiff', 'JPG', 'PNG', 'JPEG', 'BMP', 'TIF', 'TIFF']
+
+        support_types = set(support_types)
         self.root = root
 
         # GT : Ground Truth
         self.GT_paths = self.get_path(root) + '_GT/'
-        self.image_paths = list(map(lambda x: os.path.join(root, x), os.listdir(root)))
+        self.image_paths = [join(root, f) for f in os.listdir(root)
+                            if isfile(join(root, f)) and splitext(f)[1] in support_types]
         self.image_size = image_size
         self.mode = mode
         self.RotationDegree = [0, 90, 180, 270]
@@ -98,10 +105,11 @@ class ImageFolder(data.Dataset):
         return len(self.image_paths)
 
 
-def get_loader(image_path, image_size, batch_size, num_workers=2, mode='train', augmentation_prob=0.4):
+def get_loader(image_path, image_size, batch_size, num_workers=2, mode='train', augmentation_prob=0.4, support_types=None):
     """Builds and returns Dataloader."""
 
-    dataset = ImageFolder(root=image_path, image_size=image_size, mode=mode, augmentation_prob=augmentation_prob)
+    dataset = ImageFolder(root=image_path, image_size=image_size, mode=mode, augmentation_prob=augmentation_prob,
+                          support_types=support_types)
     data_loader = data.DataLoader(dataset=dataset,
                                   batch_size=batch_size,
                                   shuffle=True,

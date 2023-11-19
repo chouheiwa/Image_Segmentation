@@ -41,19 +41,22 @@ def main(config):
                               batch_size=config.batch_size,
                               num_workers=config.num_workers,
                               mode='train',
-                              augmentation_prob=config.augmentation_prob)
+                              augmentation_prob=config.augmentation_prob,
+                              support_types=config.support_image_types)
     valid_loader = get_loader(image_path=config.valid_path,
                               image_size=config.image_size,
                               batch_size=config.batch_size,
                               num_workers=config.num_workers,
                               mode='valid',
-                              augmentation_prob=0.)
+                              augmentation_prob=0.,
+                              support_types=config.support_image_types)
     test_loader = get_loader(image_path=config.test_path,
                              image_size=config.image_size,
                              batch_size=config.batch_size,
                              num_workers=config.num_workers,
                              mode='test',
-                             augmentation_prob=0.)
+                             augmentation_prob=0.,
+                             support_types=config.support_image_types)
 
     solver = Solver(config, train_loader, valid_loader, test_loader)
 
@@ -70,6 +73,7 @@ if __name__ == '__main__':
     parser.add_argument('--yaml_path', type=str, default=None,
                         help='If you set the yaml_path, the config will be read from the yaml file, '
                              'all the other arguments will be ignored.')
+    parser.add_argument('--support_image_types', nargs='+', default=['jpg', 'png', 'jpeg', 'bmp', 'tif', 'tiff', 'JPG', 'PNG', 'JPEG', 'BMP', 'TIF', 'TIFF'])
     # model hyper-parameters
     parser.add_argument('--image_size', type=int, default=224)
     parser.add_argument('--t', type=int, default=3, help='t for Recurrent step of R2U_Net or R2AttU_Net')
@@ -88,6 +92,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--log_step', type=int, default=2)
     parser.add_argument('--val_step', type=int, default=2)
+
 
     # misc
     parser.add_argument('--mode', type=str, default='train')
