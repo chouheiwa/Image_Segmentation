@@ -191,7 +191,7 @@ class Solver(object):
             self.log.plot_data(my_fantastic_logging=my_fantastic_logging)
             # ===================================== Validation ====================================#
 
-            unet_score = self._valid_(True)
+            unet_score = self._valid_(True, epoch=epoch)
             # Save Best U-Net model
             if unet_score > best_unet_score:
                 best_unet_score = unet_score
@@ -212,7 +212,7 @@ class Solver(object):
                          self.num_epochs_decay, self.augmentation_prob])
             f.close()
 
-    def _valid_(self, isValid=True):
+    def _valid_(self, isValid=True, epoch=None):
         self.unet.train(False)
         self.unet.eval()
 
@@ -254,6 +254,7 @@ class Solver(object):
             acc, SE, SP, PC, F1, JS, DC))
         self.log.plot_data(my_fantastic_logging={
             'type': 'valid',
+            'epoch': epoch,
             'acc': acc,
             'SE': SE,
             'SP': SP,
