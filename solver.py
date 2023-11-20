@@ -127,7 +127,7 @@ class Solver(object):
             DC = 0.  # Dice Coefficient
             length = 0
 
-            for i, (images, GT) in enumerate(tqdm(self.train_loader, desc=f"Epoch {epoch} Training Processing")):
+            for i, (images, GT) in enumerate(tqdm(self.train_loader, desc=f"{self.model_type} Epoch {epoch} Training Processing")):
                 # GT : Ground Truth
 
                 images = images.to(self.device)

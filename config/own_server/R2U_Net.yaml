@@ -1,0 +1,2 @@
+parent_path: './default.yaml'
+model_type: 'R2U_Net'
