@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from network.module import RRCNNBlock, UpConv
+from unet.network.module import RRCNNBlock, UpConv
 
 
 class R2UNet(nn.Module):

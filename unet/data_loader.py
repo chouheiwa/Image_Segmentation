@@ -117,10 +117,3 @@ def get_loader(image_path, image_size, batch_size, num_workers=2, mode='train', 
                                   num_workers=num_workers)
     return data_loader
 
-
-if __name__ == '__main__':
-    support_types = ['jpg', 'png', 'jpeg', 'bmp', 'tif', 'tiff', 'JPG', 'PNG', 'JPEG', 'BMP', 'TIF', 'TIFF', 'py']
-    root = './'
-    data = [join(root, f) for f in os.listdir(root)
-            if isfile(join(root, f)) and splitext(f)[1][1:] in support_types]
-    print(data)

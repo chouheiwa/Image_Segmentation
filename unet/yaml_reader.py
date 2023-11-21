@@ -40,5 +40,5 @@ def read_yaml(path):
 
 
 if __name__ == '__main__':
-    print(read_yaml('config/config_default.yaml'))
-    print(read_yaml(join('config', 'autodl', 'default.yaml')).train_path)
+    print(read_yaml('../config/config_default.yaml'))
+    print(read_yaml(join('../config', 'autodl', 'default.yaml')).train_path)

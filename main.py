@@ -1,16 +1,16 @@
 import argparse
 import os
-from solver import Solver
-from data_loader import get_loader
+from unet.solver import Solver
+from unet.data_loader import get_loader
 from torch.backends import cudnn
 import random
-from yaml_reader import read_yaml
+from unet.yaml_reader import read_yaml
 
 
 def main(config):
     cudnn.benchmark = True
-    if config.model_type not in ['U_Net', 'R2U_Net', 'AttU_Net', 'R2AttU_Net']:
-        print('ERROR!! model_type should be selected in U_Net/R2U_Net/AttU_Net/R2AttU_Net')
+    if config.model_type not in ['U_Net', 'R2U_Net', 'AttU_Net', 'R2AttU_Net', 'MMU_Net']:
+        print('ERROR!! model_type should be selected in U_Net/R2U_Net/AttU_Net/R2AttU_Net/MMU_Net')
         print('Your input for model_type was %s' % config.model_type)
         return
 
@@ -70,7 +70,7 @@ def main(config):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--yaml_path', type=str, default=None,
+    parser.add_argument('--yaml_path', type=str, default='./config/local/MMU_Net.yaml',
                         help='If you set the yaml_path, the config will be read from the yaml file, '
                              'all the other arguments will be ignored.')
     parser.add_argument('--support_image_types', nargs='+', default=['jpg', 'png', 'jpeg', 'bmp', 'tif', 'tiff', 'JPG', 'PNG', 'JPEG', 'BMP', 'TIF', 'TIFF'])

@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from network.module import ConvBlock, UpConv
+from unet.network.module import ConvBlock, UpConv
 
 
 class UNet(nn.Module):

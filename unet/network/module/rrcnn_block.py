@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from network.module import RecurrentBlock
+from unet.network.module import RecurrentBlock
 
 
 class RRCNNBlock(nn.Module):

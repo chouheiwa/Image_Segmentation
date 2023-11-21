@@ -1,0 +1,6 @@
+parent_path: '../config_default.yaml'
+
+train_path: '/Users/chouheiwa/Downloads/ISIC2018/Train/ISIC2018_Task1-2_Training_Input'
+valid_path: '/Users/chouheiwa/Downloads/ISIC2018/Validation/ISIC2018_Task1-2_Validation_Input'
+test_path: '/Users/chouheiwa/Downloads/ISIC2018/Test/ISIC2018_Task1-2_Test_Input'
+tensorboard_path: '/Users/chouheiwa/Downloads/ISIC2018/tf-logs'

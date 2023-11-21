@@ -5,9 +5,9 @@ import torch.nn.functional as F
 from torch import optim
 from tqdm import tqdm
 
-from evaluation import *
-from logger import LoggerScalar
-from network import UNet, R2UNet, AttUNet, R2AttUNet
+from unet.evaluation import *
+from unet.logger import LoggerScalar
+from unet.network import UNet, R2UNet, AttUNet, R2AttUNet, MMUNet
 
 
 class Solver(object):
@@ -62,6 +62,8 @@ class Solver(object):
             self.unet = AttUNet(img_ch=3, output_ch=1)
         elif self.model_type == 'R2AttU_Net':
             self.unet = R2AttUNet(img_ch=3, output_ch=1, t=self.t)
+        elif self.model_type == 'MMU_Net':
+            self.unet = MMUNet(img_ch=3, output_ch=1)
 
         self.optimizer = optim.Adam(list(self.unet.parameters()),
                                     self.lr, (self.beta1, self.beta2))
