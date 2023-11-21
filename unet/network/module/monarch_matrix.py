@@ -67,6 +67,8 @@ if __name__ == '__main__':
     n = 3328
     d = 64
     x = torch.randn(1, n, d)  # 假设这是你的原始张量
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     mixer = MonarchMixerLayer(n, d)  # 创建 MonarchMixerLayer 实例
+    mixer.to(device)
     y = mixer(x)  # 执行 MonarchMixerLayer 的前向传播
     print(f"Out shape: {y.shape}")
