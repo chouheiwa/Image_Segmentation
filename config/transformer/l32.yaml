@@ -1,0 +1,4 @@
+parent_path: './l16.yaml'
+
+patches:
+  size: [ 32, 32 ]

@@ -1,0 +1,39 @@
+
+support_image_types: ['jpg', 'png', 'jpeg', 'bmp', 'tif', 'tiff', 'JPG', 'PNG', 'JPEG', 'BMP', 'TIF', 'TIFF']
+has_multiple_label: False
+# training hyper-parameters
+num_epochs: 100
+num_epochs_decay: 70
+lr: 0.0002
+beta1: 0.5  # momentum1 in Adam
+beta2: 0.999  # momentum2 in Adam
+
+log_step: 2
+val_step: 2
+
+# misc
+mode: train
+tensorboard_path: './tensorboard/' # The log of the tensorboard will be saved in this path. If relative path is used, it will be relative to the path of the running script.
+
+cuda_idx: 1
+
+# The definitions of the config, all the yaml can have this function.
+# When all the yaml files are loaded, this filed will be removed.
+definitions:
+  network_path: null # The path of the network yaml file.
+  dataset_path: null # The path of the dataset yaml file.
+
+network: # The network structure mentioned in the network_path (you can see and change in config/unet/*.yaml).
+  model_type: U_Net
+  model_path: 'models/unet'
+  img_ch: 3
+  output_ch: 1
+
+dataset: # The dataset structure mentioned in the dataset_path (you can see and change in config/dataset/**/*.yaml).
+  type: 'isic-2018-task-1'
+  root_path: './' # Need to set the real dataset path
+
+  image_size: 224
+  batch_size: 1
+  num_workers: 8
+  augmentation_prob: 0.4

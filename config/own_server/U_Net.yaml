@@ -1,2 +1,3 @@
-parent_path: './default.yaml'
+parent_path: 'default.yaml'
 model_type: 'U_Net'
+network_config_path: '../unet/unet.yaml'

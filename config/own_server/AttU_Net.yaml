@@ -1,2 +1,4 @@
-parent_path: './default.yaml'
+parent_path: 'default.yaml'
 model_type: 'AttU_Net'
+definitions:
+  network_path: '../unet/r2unet.yaml'

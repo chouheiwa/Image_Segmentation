@@ -1,0 +1,13 @@
+parent_path: './l16.yaml'
+patches:
+  size: [ 16, 16 ]
+
+resnet:
+  num_layers: [ 3, 4, 9 ]
+  width_factor: 1
+
+classifier: seg
+pretrained_path: 'R50+ViT-L_16'
+decoder_channels: [ 256, 128, 64, 16 ]
+skip_channels: [ 512, 256, 64, 16 ]
+n_classes: 2

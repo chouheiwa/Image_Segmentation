@@ -1,0 +1,5 @@
+parent_path: './b16.yaml'
+
+patches:
+  size: [ 32, 32 ]
+pretrained_path: 'ViT-B_32'

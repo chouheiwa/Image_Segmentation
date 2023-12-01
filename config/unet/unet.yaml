@@ -1,0 +1,4 @@
+model_type: U_Net
+model_path: 'models/unet'
+img_ch: 3
+output_ch: 1

@@ -2,12 +2,15 @@ import csv
 import os
 
 import torch.nn.functional as F
+from torch import distributed
 from torch import optim
 from tqdm import tqdm
 
 from unet.evaluation import *
 from unet.logger import LoggerScalar
-from unet.network import UNet, R2UNet, AttUNet, R2AttUNet, MMUNet
+from unet.loss import DCAndBCELoss, DCAndCELoss
+from unet.loss.soft_dice import MemoryEfficientSoftDiceLoss
+from unet.network import UNet, R2UNet, AttUNet, R2AttUNet, TransUNet
 
 
 class Solver(object):
@@ -23,7 +26,24 @@ class Solver(object):
         self.optimizer = None
         self.img_ch = config.img_ch
         self.output_ch = config.output_ch
-        self.criterion = torch.nn.BCELoss()
+        self.image_size = config.image_size
+        self.is_ddp = distributed.is_available() and distributed.is_initialized()
+        self.transformer_config = config.transformer_config
+        if config.has_multiple_label:
+            self.criterion = DCAndBCELoss(
+                bce_kwargs={},
+                soft_dice_kwargs={'batch_dice': config.batch_dice,
+                                  'do_bg': True, 'smooth': 1e-5, 'ddp': self.is_ddp},
+            )
+        else:
+            self.criterion = DCAndCELoss(
+                soft_dice_kwargs={'batch_dice': config.batch_dice,
+                                  'smooth': 1e-5, 'do_bg': False, 'ddp': self.is_ddp},
+                ce_kwargs={},
+                weight_ce=1, weight_dice=1,
+                ignore_label=config.ignore_label,
+                dice_class=MemoryEfficientSoftDiceLoss
+            )
         self.augmentation_prob = config.augmentation_prob
 
         # Hyper-parameters
@@ -62,8 +82,11 @@ class Solver(object):
             self.unet = AttUNet(img_ch=3, output_ch=1)
         elif self.model_type == 'R2AttU_Net':
             self.unet = R2AttUNet(img_ch=3, output_ch=1, t=self.t)
-        elif self.model_type == 'MMU_Net':
-            self.unet = MMUNet(img_ch=3, output_ch=1)
+        elif self.model_type == 'Trans_U_Net':
+            self.unet = TransUNet(
+                config=self.transformer_config,
+                img_size=self.image_size
+            )
 
         self.optimizer = optim.Adam(list(self.unet.parameters()),
                                     self.lr, (self.beta1, self.beta2))
@@ -129,7 +152,8 @@ class Solver(object):
             DC = 0.  # Dice Coefficient
             length = 0
 
-            for i, (images, GT) in enumerate(tqdm(self.train_loader, desc=f"{self.model_type} Epoch {epoch} Training Processing")):
+            for i, (images, GT) in enumerate(
+                    tqdm(self.train_loader, desc=f"{self.model_type} Epoch {epoch} Training Processing")):
                 # GT : Ground Truth
 
                 images = images.to(self.device)
@@ -137,8 +161,7 @@ class Solver(object):
 
                 # SR : Segmentation Result
                 SR = self.unet(images)
-                SR_probs = F.sigmoid(SR)
-                SR_flat = SR_probs.view(SR_probs.size(0), -1)
+                SR_flat = SR.view(SR.size(0), -1)
 
                 GT_flat = GT.view(GT.size(0), -1)
                 loss = self.criterion(SR_flat, GT_flat)

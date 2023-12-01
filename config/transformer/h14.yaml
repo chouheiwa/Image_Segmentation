@@ -1,0 +1,14 @@
+patches:
+  size: [ 14, 14 ]
+
+hidden_size: 1280
+
+transformer:
+  mlp_dim: 5120
+  num_heads: 16
+  num_layers: 32
+  attention_dropout_rate: 0.0
+  dropout_rate: 0.1
+
+classifier: token
+representation_size: null

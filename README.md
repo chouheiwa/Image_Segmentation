@@ -1,6 +1,6 @@
-### pytorch Implementation of U-Net, R2U-Net, Attention U-Net, Attention R2U-Net
+### pytorch Implementation of U-Net, R2U-Net, Attention U-Net, Attention R2U-Net, TransU-Net
 
-**(This repository is no longer being updated)**
+**(This repository is forked from )**
 
 **U-Net: Convolutional Networks for Biomedical Image Segmentation**
 
@@ -16,7 +16,6 @@ https://arxiv.org/abs/1804.03999
 
 **Attention R2U-Net : Just integration of two recent advanced works (R2U-Net + Attention U-Net)**
 
-
 ## U-Net
 ![U-Net](img/U-Net.png)
 
@@ -29,6 +28,17 @@ https://arxiv.org/abs/1804.03999
 
 ## Attention R2U-Net
 ![AttR2U-Net](img/AttR2U-Net.png)
+
+## TransU-Net
+
+Before use, we need first to download pretrain model.
+* [Get models in this link](https://console.cloud.google.com/storage/vit_models/): R50-ViT-B_16, ViT-B_16, ViT-L_16...
+```shell
+mkdir -p model/vit_checkpoint/imagenet21k &&
+wget -O model/vit_checkpoint/imagenet21k/{MODEL_NAME}.npz https://storage.googleapis.com/vit_models/imagenet21k/{MODEL_NAME}.npz
+```
+
+
 
 ## Evaluation
 We just test the models with [ISIC 2018 dataset](https://challenge.isic-archive.com/data/#2018) task 1. The dataset was split into three subsets, training set, validation set, and test set, which the proportion is 70%, 10% and 20% of the whole dataset, respectively. The train dataset contains 2594 images, the validation dataset contains 100 images, the test dataset contains 1000 images.
