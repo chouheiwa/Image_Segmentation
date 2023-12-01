@@ -21,7 +21,6 @@ data2: 'parent'
 data1: 'real'
 data2: 'parent'
 ```
-目前未提供二级子属性的注入修改
 
 ### 引用
 引用的关键字为: `definitions`，它的值为一个对象，表示引用的对象yaml路径集合，其后缀需要为`_path`。例如：

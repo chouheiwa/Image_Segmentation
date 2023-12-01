@@ -21,7 +21,6 @@ Final YAML result:
 data1: 'real'
 data2: 'parent'
 ```
-Injection modifications into secondary sub-properties are not supported.
 
 ### References
 Keyword: `definitions`, an object representing a collection of referenced YAML paths, suffix: `_path`. Example:
@@ -75,5 +74,5 @@ Inheritance and references in YAML enable quick, common configuration definition
 A complete example is in [config_demo.yaml](config_demo.yaml).
 
 ## Extensions
-- [ ] Support for injecting modifications into multiple sub-properties
+- [x] Support for injecting modifications into multiple sub-properties
 - [ ] Separate `yaml_read` into an independent package for configuration inclusion.
