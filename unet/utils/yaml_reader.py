@@ -79,4 +79,4 @@ def read_yaml_template(path, parent_key: str = 'parent_path', should_resolve_def
 
 if __name__ == '__main__':
     # print(merge_dicts_deep({'a': 1, 'b': {'c': 1}}, {'a': 3, 'b': {'c': 4}}))
-    print(read_yaml(join(get_root_dir(), 'config', 'own_server', 'AttU_Net.yaml')))
+    print(read_yaml(join(get_root_dir(), 'config', 'full-config', 'own_server', 'AttU_Net.yaml')))

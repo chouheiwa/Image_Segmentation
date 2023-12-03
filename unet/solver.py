@@ -10,7 +10,7 @@ from unet.evaluation import *
 from unet.logger import LoggerScalar
 from unet.loss import DCAndBCELoss, DCAndCELoss
 from unet.loss.soft_dice import MemoryEfficientSoftDiceLoss
-from unet.network import UNet, R2UNet, AttUNet, R2AttUNet, TransUNet
+from unet.network import get_network
 
 
 class Solver(object):
@@ -24,27 +24,26 @@ class Solver(object):
         # Models
         self.unet = None
         self.optimizer = None
-        self.img_ch = config.img_ch
-        self.output_ch = config.output_ch
-        self.image_size = config.image_size
+        self.img_ch = config.network.img_ch
+        self.output_ch = config.network.output_ch
+        self.image_size = config.dataset.image_size
         self.is_ddp = distributed.is_available() and distributed.is_initialized()
-        self.transformer_config = config.transformer_config
         if config.has_multiple_label:
             self.criterion = DCAndBCELoss(
                 bce_kwargs={},
-                soft_dice_kwargs={'batch_dice': config.batch_dice,
+                soft_dice_kwargs={'batch_dice': config.dataset.batch_dice,
                                   'do_bg': True, 'smooth': 1e-5, 'ddp': self.is_ddp},
             )
         else:
             self.criterion = DCAndCELoss(
-                soft_dice_kwargs={'batch_dice': config.batch_dice,
+                soft_dice_kwargs={'batch_dice': config.dataset.batch_dice,
                                   'smooth': 1e-5, 'do_bg': False, 'ddp': self.is_ddp},
                 ce_kwargs={},
                 weight_ce=1, weight_dice=1,
                 ignore_label=config.ignore_label,
                 dice_class=MemoryEfficientSoftDiceLoss
             )
-        self.augmentation_prob = config.augmentation_prob
+        self.augmentation_prob = config.dataset.augmentation_prob
 
         # Hyper-parameters
         self.lr = config.lr
@@ -54,39 +53,26 @@ class Solver(object):
         # Training settings
         self.num_epochs = config.num_epochs
         self.num_epochs_decay = config.num_epochs_decay
-        self.batch_size = config.batch_size
+        self.batch_size = config.dataset.batch_size
 
         # Step size
         self.log_step = config.log_step
         self.val_step = config.val_step
 
         # Path
-        self.model_path = config.model_path
+        self.model_path = config.network.model_path
         self.tensorboard_path = config.tensorboard_path
         self.result_path = config.result_path
         self.mode = config.mode
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model_type = config.model_type
-        self.t = config.t
+        self.model_type = config.network.model_type
         self.log = LoggerScalar(os.path.join(self.tensorboard_path, self.model_type))
-        self.build_model()
+        self.build_model(config)
 
-    def build_model(self):
+    def build_model(self, config):
         """Build generator and discriminator."""
-        if self.model_type == 'U_Net':
-            self.unet = UNet(img_ch=3, output_ch=1)
-        elif self.model_type == 'R2U_Net':
-            self.unet = R2UNet(img_ch=3, output_ch=1, t=self.t)
-        elif self.model_type == 'AttU_Net':
-            self.unet = AttUNet(img_ch=3, output_ch=1)
-        elif self.model_type == 'R2AttU_Net':
-            self.unet = R2AttUNet(img_ch=3, output_ch=1, t=self.t)
-        elif self.model_type == 'Trans_U_Net':
-            self.unet = TransUNet(
-                config=self.transformer_config,
-                img_size=self.image_size
-            )
+        self.unet = get_network(config.network)
 
         self.optimizer = optim.Adam(list(self.unet.parameters()),
                                     self.lr, (self.beta1, self.beta2))

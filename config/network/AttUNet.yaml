@@ -1,0 +1,4 @@
+parent_path: 'unet.yaml'
+
+model_type: AttUNet
+model_path: 'models/att_u_net'

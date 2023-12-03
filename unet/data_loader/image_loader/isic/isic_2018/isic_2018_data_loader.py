@@ -26,6 +26,8 @@ class ISIC2018ImageLoader(ImageLoader):
             origin_path, gt_path = get_path(root, 'Validation')
         super().__init__(origin_path, gt_path, image_size, mode, augmentation_prob)
 
+    def get_gt_file_name(self, origin_image_name: str, extension: str) -> str:
+        return origin_image_name + "_segmentation.png"
 
 class ISIC2018DataLoader(DataLoader):
     @staticmethod
@@ -44,7 +46,7 @@ class ISIC2018DataLoader(DataLoader):
             batch_size=config.batch_size,
             num_workers=config.num_workers,
             mode='valid',
-            augmentation_prob=config.augmentation_prob
+            augmentation_prob=0.
         )
         test_loader = ISIC2018DataLoader(
             root=config.root_path,
@@ -52,7 +54,7 @@ class ISIC2018DataLoader(DataLoader):
             batch_size=config.batch_size,
             num_workers=config.num_workers,
             mode='test',
-            augmentation_prob=config.augmentation_prob
+            augmentation_prob=0.
         )
         return train_loader, valid_loader, test_loader
 

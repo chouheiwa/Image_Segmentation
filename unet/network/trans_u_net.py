@@ -6,12 +6,24 @@ from scipy import ndimage
 from torch import nn
 
 from unet.network.module.transformer import Transformer, DecoderCup, SegmentationHead
+from unet.network.network_type import NetworkType
 from unet.utils import np2th
 
 logger = logging.getLogger(__name__)
 
 
-class TransUNet(nn.Module):
+class TransUNet(NetworkType):
+
+    @classmethod
+    def create_model(cls, config):
+        return TransUNet(
+            config=config['transformer'],
+            img_size=config["img_size"],
+            num_classes=config["num_classes"],
+            zero_head=config["zero_head"],
+            vis=config["vis"]
+        )
+
     def __init__(self, config, img_size=224, num_classes=21843, zero_head=False, vis=False):
         super(TransUNet, self).__init__()
         self.num_classes = num_classes

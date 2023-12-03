@@ -2,9 +2,14 @@ import torch
 from torch import nn
 
 from unet.network.module import RRCNNBlock, UpConv
+from unet.network.network_type import NetworkType
 
 
-class R2UNet(nn.Module):
+class R2UNet(NetworkType):
+    @classmethod
+    def create_model(cls, config):
+        return R2UNet(img_ch=config["img_ch"], output_ch=config["output_ch"], t=config["t"])
+
     def __init__(self, img_ch=3, output_ch=1, t=2):
         super(R2UNet, self).__init__()
 

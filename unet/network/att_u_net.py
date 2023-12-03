@@ -1,10 +1,16 @@
 import torch
 from torch import nn
 
+from .network_type import NetworkType
 from unet.network.module import ConvBlock, UpConv, AttentionBlock
 
 
-class AttUNet(nn.Module):
+class AttUNet(NetworkType):
+
+    @classmethod
+    def create_model(cls, config):
+        return AttUNet(img_ch=config["img_ch"], output_ch=config["output_ch"])
+
     def __init__(self, img_ch=3, output_ch=1):
         super(AttUNet, self).__init__()
 

@@ -1,6 +1,9 @@
 
 support_image_types: ['jpg', 'png', 'jpeg', 'bmp', 'tif', 'tiff', 'JPG', 'PNG', 'JPEG', 'BMP', 'TIF', 'TIFF']
 has_multiple_label: False
+
+ignore_label: Null
+
 # training hyper-parameters
 num_epochs: 100
 num_epochs_decay: 70
@@ -14,7 +17,7 @@ val_step: 2
 # misc
 mode: train
 tensorboard_path: './tensorboard/'
-
+result_path: 'result/' # The result of the training will be saved in this path. If relative path is used, it will be relative to the path of the running script.
 cuda_idx: 1
 
 # The definitions of the config, all the yaml can have this function.

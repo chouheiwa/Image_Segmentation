@@ -1,4 +1,4 @@
-parent_path: '../config_default.yaml'
+parent_path: '../../config_default.yaml'
 
 tensorboard_path: '/home/chouheiwa/tf-logs/UNet'
 

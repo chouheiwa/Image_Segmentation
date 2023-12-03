@@ -23,7 +23,7 @@ definitions:
   network_path: null # The path of the network yaml file.
   dataset_path: null # The path of the dataset yaml file.
 
-network: # The network structure mentioned in the network_path (you can see and change in config/unet/*.yaml).
+network: # The network structure mentioned in the network_path (you can see and change in config/network/*.yaml).
   model_type: U_Net
   model_path: 'models/unet'
   img_ch: 3

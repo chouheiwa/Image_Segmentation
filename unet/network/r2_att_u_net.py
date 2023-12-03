@@ -2,9 +2,15 @@ import torch
 from torch import nn
 
 from unet.network.module import RRCNNBlock, UpConv, AttentionBlock
+from unet.network.network_type import NetworkType
 
 
-class R2AttUNet(nn.Module):
+class R2AttUNet(NetworkType):
+
+    @classmethod
+    def create_model(cls, config):
+        return R2AttUNet(img_ch=config["img_ch"], output_ch=config["output_ch"], t=config["t"])
+
     def __init__(self, img_ch=3, output_ch=1, t=2):
         super(R2AttUNet, self).__init__()
 
@@ -79,3 +85,7 @@ class R2AttUNet(nn.Module):
         d1 = self.Conv_1x1(d2)
 
         return d1
+
+
+if __name__ == '__main__':
+    print(R2AttUNet.name())
