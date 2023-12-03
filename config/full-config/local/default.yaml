@@ -1,0 +1,4 @@
+parent_path: '../../config_default.yaml'
+
+
+tensorboard_path: '/Users/chouheiwa/Downloads/ISIC2018/tf-logs'
