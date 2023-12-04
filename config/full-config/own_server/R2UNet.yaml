@@ -1,2 +1,2 @@
 parent_path: './default.yaml'
-model_type: 'R2AttU_Net'
+model_type: 'R2UNet'
