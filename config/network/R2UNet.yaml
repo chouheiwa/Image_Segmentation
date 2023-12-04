@@ -1,4 +1,4 @@
-parent_path: './unet.yaml'
+parent_path: 'UNet.yaml'
 model_path: 'models/r2unet'
-model_type: R2U_Net
+model_type: R2UNet
 t: 3  # t for Recurrent step of R2U_Net or R2AttU_Net
