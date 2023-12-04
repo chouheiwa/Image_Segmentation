@@ -1,2 +1,4 @@
 parent_path: './default.yaml'
-model_type: 'R2UNet'
+definitions:
+  network_path: '../../network/R2UNet.yaml'
+

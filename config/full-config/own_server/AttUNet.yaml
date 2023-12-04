@@ -1,4 +1,3 @@
 parent_path: 'default.yaml'
-model_type: 'AttUNet'
 definitions:
-  network_path: '../../network/r2unet.yaml'
+  network_path: '../../network/AttUNet.yaml'
