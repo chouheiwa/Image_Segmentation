@@ -1,4 +1,4 @@
-parent_path: './default.yaml'
+parent_path: 'default.yaml'
 definitions:
   network_path: '../../network/R2UNet.yaml'
 
