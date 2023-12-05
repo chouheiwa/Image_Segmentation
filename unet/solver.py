@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from torch import distributed
 from torch import optim
 from torch.nn import BCELoss
-from tqdm.auto import tqdm
+from tqdm import tqdm
 
 from unet.evaluation import *
 from unet.evaluator import BinaryFilterEvaluator
@@ -133,7 +133,11 @@ class Solver(object):
             evaluator = BinaryFilterEvaluator(epoch=epoch, total_epoch=self.num_epochs, type='train')
             self.unet.train(True)
             for i, (images, GT) in enumerate(
-                    tqdm.tqdm(self.train_loader, desc=f"{self.model_type} Epoch {epoch} Training Processing")):
+                    tqdm(
+                        iterable=self.train_loader,
+                        desc=f"{self.model_type} Epoch {epoch} Training Processing"
+                    )
+            ):
                 # GT : Ground Truth
 
                 images = images.to(self.device)
