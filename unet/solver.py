@@ -15,7 +15,7 @@ from unet.network import get_network
 
 class Solver(object):
     def __init__(self, config, train_loader, valid_loader, test_loader):
-
+        self.config = config
         # Data loader
         self.train_loader = train_loader
         self.valid_loader = valid_loader
@@ -68,11 +68,11 @@ class Solver(object):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model_type = config.network.model_type
         self.log = LoggerScalar(os.path.join(self.tensorboard_path, self.model_type))
-        self.build_model(config)
+        self.build_model()
 
-    def build_model(self, config):
+    def build_model(self):
         """Build generator and discriminator."""
-        self.unet = get_network(config.network)
+        self.unet = get_network(self.config.network)
 
         self.optimizer = optim.Adam(list(self.unet.parameters()),
                                     self.lr, (self.beta1, self.beta2))
