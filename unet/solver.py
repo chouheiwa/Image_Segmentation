@@ -4,9 +4,11 @@ import os
 import torch.nn.functional as F
 from torch import distributed
 from torch import optim
-from tqdm import tqdm
+from torch.nn import BCELoss
+from tqdm.auto import tqdm
 
 from unet.evaluation import *
+from unet.evaluator import BinaryFilterEvaluator
 from unet.logger import LoggerScalar
 from unet.loss import DCAndBCELoss, DCAndCELoss
 from unet.loss.soft_dice import MemoryEfficientSoftDiceLoss
@@ -35,14 +37,17 @@ class Solver(object):
                                   'do_bg': True, 'smooth': 1e-5, 'ddp': self.is_ddp},
             )
         else:
-            self.criterion = DCAndCELoss(
-                soft_dice_kwargs={'batch_dice': config.dataset.batch_dice,
-                                  'smooth': 1e-5, 'do_bg': False, 'ddp': self.is_ddp},
-                ce_kwargs={},
-                weight_ce=1, weight_dice=1,
-                ignore_label=config.ignore_label,
-                dice_class=MemoryEfficientSoftDiceLoss
-            )
+            # self.criterion = DCAndCELoss(
+            #     soft_dice_kwargs={'batch_dice': config.dataset.batch_dice,
+            #                       'smooth': 1e-5, 'do_bg': False, 'ddp': self.is_ddp},
+            #     ce_kwargs={},
+            #     weight_ce=1, weight_dice=1,
+            #     ignore_label=config.ignore_label,
+            #     dice_class=MemoryEfficientSoftDiceLoss
+            # )
+            self.criterion = BCELoss()
+
+        print("Loss class:", str(self.criterion.__class__.__name__))
         self.augmentation_prob = config.dataset.augmentation_prob
 
         # Hyper-parameters
@@ -125,21 +130,10 @@ class Solver(object):
         best_unet_score = 0.
         best_epoch = 0
         for epoch in range(self.num_epochs):
-
+            evaluator = BinaryFilterEvaluator(epoch=epoch, total_epoch=self.num_epochs, type='train')
             self.unet.train(True)
-            epoch_loss = 0
-
-            acc = 0.  # Accuracy
-            SE = 0.  # Sensitivity (Recall)
-            SP = 0.  # Specificity
-            PC = 0.  # Precision
-            F1 = 0.  # F1 Score
-            JS = 0.  # Jaccard Similarity
-            DC = 0.  # Dice Coefficient
-            length = 0
-
             for i, (images, GT) in enumerate(
-                    tqdm(self.train_loader, desc=f"{self.model_type} Epoch {epoch} Training Processing")):
+                    tqdm.tqdm(self.train_loader, desc=f"{self.model_type} Epoch {epoch} Training Processing")):
                 # GT : Ground Truth
 
                 images = images.to(self.device)
@@ -147,50 +141,27 @@ class Solver(object):
 
                 # SR : Segmentation Result
                 SR = self.unet(images)
-                SR_flat = SR.view(SR.size(0), -1)
+
+                SR_probs = F.sigmoid(SR)
+
+                SR_flat = SR_probs.view(SR_probs.size(0), -1)
 
                 GT_flat = GT.view(GT.size(0), -1)
                 loss = self.criterion(SR_flat, GT_flat)
-                epoch_loss += loss.item()
+                current_loss = loss.item()
 
                 # Backprop + optimize
                 self.reset_grad()
                 loss.backward()
                 self.optimizer.step()
 
-                acc += get_accuracy(SR, GT)
-                SE += get_sensitivity(SR, GT)
-                SP += get_specificity(SR, GT)
-                PC += get_precision(SR, GT)
-                F1 += get_F1(SR, GT)
-                JS += get_JS(SR, GT)
-                DC += get_DC(SR, GT)
-                length += images.size(0)
+                evaluator.evaluate(SR_probs, GT, images.size(0), current_loss)
 
-            acc = acc / length
-            SE = SE / length
-            SP = SP / length
-            PC = PC / length
-            F1 = F1 / length
-            JS = JS / length
-            DC = DC / length
+            evaluator.calculate()
 
             # Print the log info
-            print(
-                'Epoch [%d/%d], Loss: %.4f, \n[Training] Acc: %.4f, SE: %.4f, SP: %.4f, PC: %.4f, F1: %.4f, JS: %.4f, DC: %.4f' % (
-                    epoch + 1, self.num_epochs, epoch_loss, acc, SE, SP, PC, F1, JS, DC))
-            my_fantastic_logging = {
-                'epoch': epoch + 1,
-                'loss': epoch_loss,
-                'type': 'train',
-                'acc': acc,
-                'SE': SE,
-                'SP': SP,
-                'PC': PC,
-                'F1': F1,
-                'JS': JS,
-                'DC': DC
-            }
+            print(evaluator.to_log())
+            my_fantastic_logging = evaluator.to_tensorboard()
 
             # Decay learning rate
             if (epoch + 1) > (self.num_epochs - self.num_epochs_decay):
@@ -224,56 +195,24 @@ class Solver(object):
             f.close()
 
     def _valid_(self, isValid=True, epoch=None):
+        valid_evaluator = BinaryFilterEvaluator(epoch=epoch, total_epoch=self.num_epochs, type='valid')
         self.unet.train(False)
         self.unet.eval()
 
-        acc = 0.  # Accuracy
-        SE = 0.  # Sensitivity (Recall)
-        SP = 0.  # Specificity
-        PC = 0.  # Precision
-        F1 = 0.  # F1 Score
-        JS = 0.  # Jaccard Similarity
-        DC = 0.  # Dice Coefficient
-        length = 0
         for i, (images, GT) in enumerate(self.valid_loader):
             images = images.to(self.device)
             GT = GT.to(self.device)
             SR = F.sigmoid(self.unet(images))
-            acc += get_accuracy(SR, GT)
-            SE += get_sensitivity(SR, GT)
-            SP += get_specificity(SR, GT)
-            PC += get_precision(SR, GT)
-            F1 += get_F1(SR, GT)
-            JS += get_JS(SR, GT)
-            DC += get_DC(SR, GT)
+            valid_evaluator.evaluate(SR, GT, images.size(0), 0)
 
-            length += images.size(0)
-
-        acc = acc / length
-        SE = SE / length
-        SP = SP / length
-        PC = PC / length
-        F1 = F1 / length
-        JS = JS / length
-        DC = DC / length
-        unet_score = JS + DC
+        valid_evaluator.calculate()
+        unet_score = valid_evaluator.JS + valid_evaluator.DC
 
         if not isValid:
-            return acc, SE, SP, PC, F1, JS, DC
+            return valid_evaluator.acc, valid_evaluator.SE, valid_evaluator.SP, valid_evaluator.PC, valid_evaluator.F1, valid_evaluator.JS, valid_evaluator.DC
 
-        print('[Validation] Acc: %.4f, SE: %.4f, SP: %.4f, PC: %.4f, F1: %.4f, JS: %.4f, DC: %.4f' % (
-            acc, SE, SP, PC, F1, JS, DC))
-        self.log.plot_data(my_fantastic_logging={
-            'type': 'valid',
-            'epoch': epoch,
-            'acc': acc,
-            'SE': SE,
-            'SP': SP,
-            'PC': PC,
-            'F1': F1,
-            'JS': JS,
-            'DC': DC
-        })
+        print(valid_evaluator.to_log())
+        self.log.plot_data(my_fantastic_logging=valid_evaluator.to_tensorboard())
         '''
         torchvision.utils.save_image(images.data.cpu(),
                                     os.path.join(self.result_path,
