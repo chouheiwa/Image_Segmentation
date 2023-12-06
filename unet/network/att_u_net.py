@@ -8,7 +8,7 @@ from unet.network.module import ConvBlock, UpConv, AttentionBlock
 class AttUNet(NetworkType):
 
     @classmethod
-    def create_model(cls, config):
+    def create_model(cls, config, device):
         return AttUNet(img_ch=config["img_ch"], output_ch=config["output_ch"])
 
     def __init__(self, img_ch=3, output_ch=1):

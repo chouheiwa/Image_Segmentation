@@ -1,13 +1,14 @@
 import csv
 import os
 
+import torch
 import torch.nn.functional as F
+from termcolor import colored
 from torch import distributed
 from torch import optim
 from torch.nn import BCELoss
 from tqdm import tqdm
 
-from unet.evaluation import *
 from unet.evaluator import BinaryFilterEvaluator
 from unet.logger import LoggerScalar
 from unet.loss import DCAndBCELoss, DCAndCELoss
@@ -183,7 +184,9 @@ class Solver(object):
                 best_unet_score = unet_score
                 best_epoch = epoch
                 best_unet = self.unet.state_dict()
-                print('Best %s model score : %.4f' % (self.model_type, best_unet_score))
+
+                print(colored('Best %s model score : %.4f' % (self.model_type, best_unet_score), "light_green",
+                              attrs=["bold"]))
                 torch.save(best_unet, unet_path)
 
         # ===================================== Test ====================================#

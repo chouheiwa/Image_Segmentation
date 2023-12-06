@@ -1,6 +1,8 @@
 import argparse
 import os
 
+from termcolor import colored
+
 from unet.data_loader.loader_mapper import get_data_loader
 from unet.network import get_support_list
 

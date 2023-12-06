@@ -7,5 +7,5 @@ class NetworkType(nn.Module):
         return cls.__name__
 
     @classmethod
-    def create_model(cls, config):
+    def create_model(cls, config, device):
         raise NotImplementedError

@@ -27,5 +27,5 @@ def get_support_list():
     return list(network_mapper.keys())
 
 
-def get_network(config):
+def get_network(config, device):
     return network_mapper[config["model_type"]](config)

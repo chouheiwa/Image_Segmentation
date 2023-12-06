@@ -15,14 +15,16 @@ logger = logging.getLogger(__name__)
 class TransUNet(NetworkType):
 
     @classmethod
-    def create_model(cls, config):
-        return TransUNet(
+    def create_model(cls, config, device):
+        unet = TransUNet(
             config=config['transformer'],
             img_size=config["img_size"],
             num_classes=config["num_classes"],
             zero_head=config["zero_head"],
             vis=config["vis"]
         )
+        unet.to(device)
+        return unet
 
     def __init__(self, config, img_size=224, num_classes=21843, zero_head=False, vis=False):
         super(TransUNet, self).__init__()
