@@ -36,7 +36,7 @@ class TransUNet(NetworkType):
         unet.to(device)
 
         if 'load_pretrained_model' in kwargs and kwargs['load_pretrained_model']:
-            unet.load_from(np.load(join(config["pretrained_model_path"], transformer_config.pretrained_model_name + '.npz')))
+            unet.load_from(np.load(join(config["pretrained_directory_path"], transformer_config.pretrained_model_name + '.npz')))
 
         return unet
 
