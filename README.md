@@ -38,7 +38,6 @@ All the supported models:
 - ViT-B_32
 - ViT-L_16
 - R50+ViT-B_16
-- R50+ViT-L_16
 
 
 ```shell

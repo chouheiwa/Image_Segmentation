@@ -1,6 +1,6 @@
 mkdir -p pretrained_models/vit_checkpoint/imagenet21k && cd pretrained_models/vit_checkpoint/imagenet21k
 
-support_list=('ViT-B_16' 'ViT-B_32' 'ViT-L_16' 'R50+ViT-B_16' 'R50+ViT-L_16')
+support_list=('ViT-B_16' 'ViT-B_32' 'ViT-L_16' 'R50+ViT-B_16')
 for model in "${support_list[@]}"; do
     file="${model}.npz"
 

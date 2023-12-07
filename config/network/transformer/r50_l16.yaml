@@ -7,7 +7,7 @@ resnet:
   width_factor: 1
 
 classifier: seg
-pretrained_model_name: 'R50+ViT-L_16'
+pretrained_model_name: 'R50+ViT-B_16'
 decoder_channels: [ 256, 128, 64, 16 ]
 skip_channels: [ 512, 256, 64, 16 ]
 n_classes: 2
