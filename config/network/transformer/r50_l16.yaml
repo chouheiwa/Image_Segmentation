@@ -1,6 +1,6 @@
 parent_path: './l16.yaml'
 patches:
-  size: [ 16, 16 ]
+  grid: [ 16, 16 ]
 
 resnet:
   num_layers: [ 3, 4, 9 ]

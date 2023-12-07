@@ -1,7 +1,7 @@
 parent_path: './b16.yaml'
 
 patches:
-  size: [ 16, 16 ]
+  grid: [ 16, 16 ]
 resnet:
   num_layers: [ 3, 4, 9 ]
   width_factor: 1
