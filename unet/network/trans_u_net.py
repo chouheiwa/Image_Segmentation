@@ -27,7 +27,7 @@ class TransUNet(NetworkType):
 
         unet = TransUNet(
             config=transformer_config,
-            img_size=dataset_config.img_size,
+            img_size=dataset_config.image_size,
             num_classes=config["num_classes"],
             zero_head=config["zero_head"],
             vis=config["vis"]
