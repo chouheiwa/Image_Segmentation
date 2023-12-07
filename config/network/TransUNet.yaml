@@ -1,6 +1,8 @@
 model_type: TransUNet
 model_path: 'models/unet'
 
+img_ch: 3
+output_ch: 1
 num_classes: 2
 zero_head: False
 vis: False
