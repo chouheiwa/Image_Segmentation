@@ -29,6 +29,7 @@ class ISIC2018ImageLoader(ImageLoader):
     def get_gt_file_name(self, origin_image_name: str, extension: str) -> str:
         return origin_image_name + "_segmentation.png"
 
+
 class ISIC2018DataLoader(DataLoader):
     @staticmethod
     def generate_loaders(config) -> (DataLoader, DataLoader, DataLoader):

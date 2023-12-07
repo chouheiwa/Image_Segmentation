@@ -92,7 +92,7 @@ class ImageLoader(Dataset):
 
             Transform = []
 
-        Transform.append(T.Resize((int(256 * aspect_ratio) - int(256 * aspect_ratio) % 16, 256)))
+        Transform.append(T.Resize((int(self.image_size * aspect_ratio) - int(self.image_size * aspect_ratio) % 16, self.image_size)))
         Transform.append(T.ToTensor())
         Transform = T.Compose(Transform)
 

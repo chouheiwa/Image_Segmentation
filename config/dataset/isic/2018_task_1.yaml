@@ -1,7 +1,7 @@
 type: 'isic-2018-task-1'
 root_path: './' # Need to set the real dataset path
 
-image_size: 224
+image_size: 256
 batch_size: 1
 num_workers: 8
 augmentation_prob: 0.4

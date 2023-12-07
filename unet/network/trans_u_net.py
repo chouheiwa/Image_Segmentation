@@ -101,12 +101,12 @@ class TransUNet(NetworkType):
                     unit.load_from(weights, n_block=uname)
 
             if self.transformer.embeddings.hybrid:
-                self.transformer.embeddings.hybrid_model.origin_image_path.conv.weight.copy_(
+                self.transformer.embeddings.hybrid_model.root.conv.weight.copy_(
                     np2th(res_weight["conv_root/kernel"], conv=True))
                 gn_weight = np2th(res_weight["gn_root/scale"]).view(-1)
                 gn_bias = np2th(res_weight["gn_root/bias"]).view(-1)
-                self.transformer.embeddings.hybrid_model.origin_image_path.gn.weight.copy_(gn_weight)
-                self.transformer.embeddings.hybrid_model.origin_image_path.gn.bias.copy_(gn_bias)
+                self.transformer.embeddings.hybrid_model.root.gn.weight.copy_(gn_weight)
+                self.transformer.embeddings.hybrid_model.root.gn.bias.copy_(gn_bias)
 
                 for bname, block in self.transformer.embeddings.hybrid_model.body.named_children():
                     for uname, unit in block.named_children():

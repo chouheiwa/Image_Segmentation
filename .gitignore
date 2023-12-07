@@ -1,2 +1,5 @@
 .idea
 __pycache__
+pretrained_models
+result
+models
