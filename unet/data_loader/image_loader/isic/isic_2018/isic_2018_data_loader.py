@@ -1,8 +1,10 @@
 from os.path import join
 
+from ml_collections import ConfigDict
 from torch.utils.data import DataLoader
 
 from unet.data_loader.image_loader import ImageLoader
+from unet.data_loader.image_loader.image_loader import calculate_image
 
 ORIGIN_FORMAT = "ISIC2018_Task1-2_{}_Input"
 GT_FORMAT = "ISIC2018_Task1_{}_GroundTruth"
@@ -57,6 +59,10 @@ class ISIC2018DataLoader(DataLoader):
             mode='test',
             augmentation_prob=0.
         )
+        _, size = calculate_image(config.image_size, config.origin_image.size)
+        config.processed_image = ConfigDict()
+        config.processed_image.size = size
+
         return train_loader, valid_loader, test_loader
 
     def __init__(self, root, image_size, batch_size, num_workers=2, mode='train',

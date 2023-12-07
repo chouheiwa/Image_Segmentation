@@ -8,6 +8,11 @@ from torchvision.transforms import functional as F
 from PIL import Image
 
 
+def calculate_image(image_size, origin_image_size):
+    aspect_ratio = origin_image_size[1] / origin_image_size[0]
+    return aspect_ratio, (int(image_size * aspect_ratio) - int(image_size * aspect_ratio) % 16, image_size)
+
+
 class ImageLoader(Dataset):
     def __init__(
             self,
@@ -46,7 +51,7 @@ class ImageLoader(Dataset):
         image = Image.open(image_path)
         GT = Image.open(GT_path)
 
-        aspect_ratio = image.size[1] / image.size[0]
+        aspect_ratio, resize_image_size = calculate_image(self.image_size, image.size)
 
         Transform = []
 
@@ -92,7 +97,7 @@ class ImageLoader(Dataset):
 
             Transform = []
 
-        Transform.append(T.Resize((int(self.image_size * aspect_ratio) - int(self.image_size * aspect_ratio) % 16, self.image_size)))
+        Transform.append(T.Resize(resize_image_size))
         Transform.append(T.ToTensor())
         Transform = T.Compose(Transform)
 

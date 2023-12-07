@@ -27,7 +27,7 @@ class TransUNet(NetworkType):
 
         unet = TransUNet(
             config=transformer_config,
-            img_size=dataset_config.image_size,
+            img_size=dataset_config.processed_image.size,
             num_classes=config["num_classes"],
             zero_head=config["zero_head"],
             vis=config["vis"]
@@ -36,11 +36,12 @@ class TransUNet(NetworkType):
         unet.to(device)
 
         if 'load_pretrained_model' in kwargs and kwargs['load_pretrained_model']:
-            unet.load_from(np.load(join(config["pretrained_directory_path"], transformer_config.pretrained_model_name + '.npz')))
+            unet.load_from(
+                np.load(join(config["pretrained_directory_path"], transformer_config.pretrained_model_name + '.npz')))
 
         return unet
 
-    def __init__(self, config, img_size=224, num_classes=21843, zero_head=False, vis=False):
+    def __init__(self, config, img_size, num_classes=21843, zero_head=False, vis=False):
         super(TransUNet, self).__init__()
         self.num_classes = num_classes
         self.zero_head = zero_head
