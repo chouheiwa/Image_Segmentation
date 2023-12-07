@@ -7,6 +7,7 @@ ignore_label: Null
 # training hyper-parameters
 num_epochs: 100
 num_epochs_decay: 70
+save_interval: 10
 lr: 0.0002
 beta1: 0.5  # momentum1 in Adam
 beta2: 0.999  # momentum2 in Adam
@@ -19,6 +20,8 @@ mode: train
 tensorboard_path: './tensorboard/'
 result_path: 'result/' # The result of the training will be saved in this path. If relative path is used, it will be relative to the path of the running script.
 cuda_idx: 1
+
+cache_base_path: 'cache_model' # The final cache path will be "{cache_base_path}/{dataset_path}/{network_path}/{epoch}"
 
 # The definitions of the config, all the yaml can have this function.
 # When all the yaml files are loaded, this filed will be removed.

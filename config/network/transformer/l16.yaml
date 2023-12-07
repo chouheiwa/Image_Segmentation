@@ -10,8 +10,8 @@ transformer:
 representation_size: null
 # custom
 classifier: seg
-resnet_pretrained_path: null
-pretrained_path: 'ViT-L_16'
+resnet_pretrained_model_name: null
+pretrained_model_name: 'ViT-L_16'
 decoder_channels: [ 256, 128, 64, 16 ]
 n_classes: 2
 activation: softmax

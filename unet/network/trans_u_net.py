@@ -1,4 +1,5 @@
 import logging
+from os.path import join
 
 import numpy as np
 import torch
@@ -15,15 +16,28 @@ logger = logging.getLogger(__name__)
 class TransUNet(NetworkType):
 
     @classmethod
-    def create_model(cls, config, device):
+    def create_model(
+            cls,
+            config,
+            dataset_config,
+            device,
+            **kwargs
+    ):
+        transformer_config = config.transformer
+
         unet = TransUNet(
-            config=config['transformer'],
-            img_size=config["img_size"],
+            config=transformer_config,
+            img_size=dataset_config.img_size,
             num_classes=config["num_classes"],
             zero_head=config["zero_head"],
             vis=config["vis"]
         )
+        unet.base_config = config
         unet.to(device)
+
+        if 'load_pretrained_model' in kwargs and kwargs['load_pretrained_model']:
+            unet.load_from(np.load(config["pretrained_model_path"]))
+
         return unet
 
     def __init__(self, config, img_size=224, num_classes=21843, zero_head=False, vis=False):
@@ -97,3 +111,7 @@ class TransUNet(NetworkType):
                 for bname, block in self.transformer.embeddings.hybrid_model.body.named_children():
                     for uname, unit in block.named_children():
                         unit.load_from(res_weight, n_block=bname, n_unit=uname)
+
+    @classmethod
+    def cache_model_name(cls, base_config) -> str:
+        return join(super().cache_model_name(base_config), base_config.network.transformer.pretrained_model_name)

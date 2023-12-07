@@ -1,0 +1,11 @@
+model_type: TransUNet
+model_path: 'models/unet'
+
+num_classes: 2
+zero_head: False
+vis: False
+
+pretrained_directory_path: 'pretrained_models/vit_checkpoint/imagenet21k'
+
+definitions:
+  transformer_path: 'transformer/r50_b16.yaml'

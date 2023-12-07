@@ -1,5 +1,6 @@
 import csv
 import os
+from os.path import join
 
 import torch
 import torch.nn.functional as F
@@ -13,7 +14,7 @@ from unet.evaluator import BinaryFilterEvaluator
 from unet.logger import LoggerScalar
 from unet.loss import DCAndBCELoss, DCAndCELoss
 from unet.loss.soft_dice import MemoryEfficientSoftDiceLoss
-from unet.network import get_network
+from unet.network import get_network, get_cached_pretrained_model
 
 
 class Solver(object):
@@ -74,15 +75,58 @@ class Solver(object):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model_type = config.network.model_type
         self.log = LoggerScalar(os.path.join(self.tensorboard_path, self.model_type))
+
+        self.save_interval = config.save_interval
+        self.current_epoch = self.get_cached_pretrained_epoch()
         self.build_model()
 
-    def build_model(self):
+    def get_cache_model_path(self):
+        joined_path = os.path.join(self.config.cache_base_path, get_cached_pretrained_model(self.config))
+        if not os.path.exists(joined_path):
+            os.makedirs(joined_path)
+        return joined_path
+
+    def get_cached_pretrained_epoch(self):
+        joined_path = self.get_cache_model_path()
+
+        # 获取文件夹列表
+        folders = os.listdir(joined_path)
+        # 过滤出仅包含数字名称的文件夹
+        numeric_folders = [folder for folder in folders if folder.isdigit()]
+
+        if numeric_folders:
+            # 将文件夹名称转换为整数并找到最大的一个
+            max_folder = max(map(int, numeric_folders))
+        else:
+            max_folder = 0  # 如果不存在数字文件夹，返回0
+        return max_folder
+
+    def build_model(self, load_current_epoch=True):
         """Build generator and discriminator."""
-        self.unet = get_network(self.config.network)
+        self.unet = get_network(
+            config=self.config.network,
+            dataset_config=self.config.dataset,
+            device=self.device,
+            load_pretrained_model=self.current_epoch == 0,
+        )
 
         self.optimizer = optim.Adam(list(self.unet.parameters()),
                                     self.lr, (self.beta1, self.beta2))
-        self.unet.to(self.device)
+
+        if self.current_epoch == 0:
+            print("No cached model found.")
+            return
+
+        if not load_current_epoch:
+            return
+
+        cache_path = self.get_cache_model_path()
+        network_path = os.path.join(cache_path, str(self.current_epoch), 'network.pth')
+        optimizer_path = os.path.join(cache_path, str(self.current_epoch), 'optimizer.pth')
+        print(colored('Loaded network param.', "light_green",
+                      attrs=["bold"]))
+        self.unet.load_state_dict(torch.load(network_path))
+        self.optimizer.load_state_dict(torch.load(optimizer_path))
 
     # self.print_network(self.unet, self.model_type)
 
@@ -99,12 +143,6 @@ class Solver(object):
         """Zero the gradient buffers."""
         self.unet.zero_grad()
 
-    def compute_accuracy(self, SR, GT):
-        SR_flat = SR.view(-1)
-        GT_flat = GT.view(-1)
-
-        acc = GT_flat.data.cpu() == (SR_flat.data.cpu() > 0.5)
-
     def tensor2img(self, x):
         img = (x[:, 0, :, :] > x[:, 1, :, :]).float()
         img = img * 255
@@ -115,22 +153,14 @@ class Solver(object):
 
         # ====================================== Training ===========================================#
         # ===========================================================================================#
-
-        unet_path = os.path.join(self.model_path, '%s-%d-%.4f-%d-%.4f.pkl' % (
-            self.model_type, self.num_epochs, self.lr, self.num_epochs_decay, self.augmentation_prob))
-
-        # U-Net Train
-        if os.path.isfile(unet_path):
-            # Load the pretrained Encoder
-            self.unet.load_state_dict(torch.load(unet_path))
-            print('%s is Successfully Loaded from %s' % (self.model_type, unet_path))
-            return
+        cache_path = self.get_cache_model_path()
+        best_network_path = os.path.join(cache_path, 'best_network')
 
         # Train for Encoder
         lr = self.lr
         best_unet_score = 0.
         best_epoch = 0
-        for epoch in range(self.num_epochs):
+        for epoch in range(self.current_epoch, self.num_epochs):
             evaluator = BinaryFilterEvaluator(epoch=epoch, total_epoch=self.num_epochs, type='train')
             self.unet.train(True)
             for i, (images, GT) in enumerate(
@@ -184,20 +214,37 @@ class Solver(object):
                 best_unet_score = unet_score
                 best_epoch = epoch
                 best_unet = self.unet.state_dict()
-
+                best_unet_optimizer = self.optimizer.state_dict()
                 print(colored('Best %s model score : %.4f' % (self.model_type, best_unet_score), "light_green",
                               attrs=["bold"]))
-                torch.save(best_unet, unet_path)
+                torch.save(best_unet, join(best_network_path, 'network.pth'))
+                torch.save(best_unet_optimizer, join(best_network_path, 'optimizer.pth'))
+                # save best epoch
+                with open(join(best_network_path, 'best_epoch.txt'), 'w') as f:
+                    f.write(str(epoch))
+
+            if epoch % self.save_interval == 0:
+                if not os.path.exists(join(cache_path, str(epoch))):
+                    os.makedirs(join(cache_path, str(epoch)))
+                torch.save(self.unet.state_dict(), join(cache_path, str(epoch), 'network.pth'))
+                torch.save(self.optimizer.state_dict(), join(cache_path, str(epoch), 'optimizer.pth'))
 
         # ===================================== Test ====================================#
+        self.test()
+
+    def test(self):
+        cache_path = self.get_cache_model_path()
+        best_network_path = os.path.join(cache_path, 'best_network')
+        with open(join(best_network_path, 'best_epoch.txt'), 'w') as f:
+            best_epoch = int(f.read())
         del self.unet
-        del best_unet
-        self.build_model()
-        self.unet.load_state_dict(torch.load(unet_path))
+        self.build_model(load_current_epoch=False)
+        self.unet.load_state_dict(torch.load(join(best_network_path, 'network.pth')))
         acc, SE, SP, PC, F1, JS, DC = self._valid_(False)
         with open(os.path.join(self.result_path, 'result.csv'), 'a', encoding='utf-8', newline='') as f:
             wr = csv.writer(f)
-            wr.writerow([self.model_type, acc, SE, SP, PC, F1, JS, DC, self.lr, best_epoch, self.num_epochs,
+            wr.writerow([get_cached_pretrained_model(self.config), acc, SE, SP, PC, F1, JS, DC, self.lr, best_epoch,
+                         self.num_epochs,
                          self.num_epochs_decay, self.augmentation_prob])
             f.close()
 

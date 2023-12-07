@@ -22,10 +22,21 @@ network_mapper = reduce(
     {}
 )
 
+data_mapper = reduce(
+    lambda dic, item: {**dic, item.name(): item.cache_model_name},
+    support_list,
+    {}
+)
+
 
 def get_support_list():
     return list(network_mapper.keys())
 
 
-def get_network(config, device):
-    return network_mapper[config["model_type"]](config)
+def get_network(config, dataset_config, device, load_pretrained_model=True):
+    return network_mapper[config["model_type"]](config, dataset_config, device,
+                                                load_pretrained_model=load_pretrained_model)
+
+
+def get_cached_pretrained_model(config):
+    return data_mapper[config.network.model_type](config)

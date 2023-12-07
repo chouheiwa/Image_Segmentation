@@ -33,9 +33,17 @@ https://arxiv.org/abs/1804.03999
 
 Before use, we need first to download pretrain model.
 * [Get models in this link](https://console.cloud.google.com/storage/vit_models/): R50-ViT-B_16, ViT-B_16, ViT-L_16...
+All the supported models:
+- ViT-B_16
+- ViT-B_32
+- ViT-L_16
+- R50+ViT-B_16
+- R50+ViT-L_16
+
+
 ```shell
-mkdir -p model/vit_checkpoint/imagenet21k &&
-wget -O model/vit_checkpoint/imagenet21k/{MODEL_NAME}.npz https://storage.googleapis.com/vit_models/imagenet21k/{MODEL_NAME}.npz
+# This script will automatically download the pretrained models to the folder ./pretrain/imagenet21k
+run_scripts/download_pretrained_models.sh
 ```
 
 

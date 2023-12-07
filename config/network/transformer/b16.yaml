@@ -9,8 +9,8 @@ transformer:
   dropout_rate: 0.1
 classifier: seg
 representation_size: null
-resnet_pretrained_path: null
-pretrained_path: 'ViT-B_16'
+resnet_pretrained_model_name: null
+pretrained_model_name: 'ViT-B_16'
 patch_size: 16
 decoder_channels: [256, 128, 64, 16]
 n_classes: 2
