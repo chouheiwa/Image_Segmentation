@@ -212,11 +212,12 @@ class Solver(object):
             # Save Best U-Net model
             if unet_score > best_unet_score:
                 best_unet_score = unet_score
-                best_epoch = epoch
                 best_unet = self.unet.state_dict()
                 best_unet_optimizer = self.optimizer.state_dict()
                 print(colored('Best %s model score : %.4f' % (self.model_type, best_unet_score), "light_green",
                               attrs=["bold"]))
+                if not os.path.exists(best_network_path):
+                    os.makedirs(best_network_path)
                 torch.save(best_unet, join(best_network_path, 'network.pth'))
                 torch.save(best_unet_optimizer, join(best_network_path, 'optimizer.pth'))
                 # save best epoch
