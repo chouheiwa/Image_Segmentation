@@ -1,3 +1,7 @@
 parent_path: 'default.yaml'
 definitions:
   network_path: '../../network/TransUNet.yaml'
+
+dataset:
+  processed_image:
+    size: [ 256, 256 ]

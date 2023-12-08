@@ -6,6 +6,9 @@ image_size: 256
 origin_image:
   size: [ 2000, 3008 ] # [ height, width ]
 
+processed_image:
+  size: null # [ height, width ]
+
 batch_size: 1
 num_workers: 8
 augmentation_prob: 0.4

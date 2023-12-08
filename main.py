@@ -1,15 +1,13 @@
 import argparse
 import os
 
-from termcolor import colored
-
 from unet.data_loader.loader_mapper import get_data_loader
 from unet.network import get_support_list
 
 from unet.solver import Solver
 from torch.backends import cudnn
 
-from unet.utils.yaml_reader import read_yaml
+from unet.utils import YamlReader
 
 
 def main(config):
@@ -54,6 +52,6 @@ if __name__ == '__main__':
 
     config = parser.parse_args()
     if config.yaml_path is not None:
-        config = read_yaml(config.yaml_path)
+        config = YamlReader(config.yaml_path).yaml
 
     main(config)

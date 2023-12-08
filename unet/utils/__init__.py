@@ -1,6 +1,7 @@
 import torch
 from .path_helper import get_root_dir, get_pre_train_model
 from .all_gather_grad import AllGatherGrad
+from .yaml_reader import YamlReader
 
 
 def np2th(weights, conv=False):

@@ -120,7 +120,7 @@ class TransUNet(NetworkType):
         ntok_new = posemb_new.size(1)
         gs_old = int(np.sqrt(len(posemb_grid)))
         gs_new = int(np.sqrt(ntok_new))
-        print('load_pretrained: grid-size from %s to %s' % (gs_old, gs_new))
+        print('load_pretrained zoomed: grid-size from %s to %s' % (gs_old, gs_new))
         posemb_grid = posemb_grid.reshape(gs_old, gs_old, -1)
         zoom = (gs_new / gs_old, gs_new / gs_old, 1)
         posemb_grid = ndimage.zoom(posemb_grid, zoom, order=1)  # th2np

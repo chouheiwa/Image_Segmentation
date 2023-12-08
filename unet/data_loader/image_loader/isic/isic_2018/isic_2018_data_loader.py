@@ -16,7 +16,7 @@ def get_path(root: str, name: str) -> (str, str):
 
 
 class ISIC2018ImageLoader(ImageLoader):
-    def __init__(self, root, image_size=224, mode='train', augmentation_prob=0.4):
+    def __init__(self, root, dataset_config, mode='train', augmentation_prob=0.4):
         assert mode == 'train' or mode == 'test' or mode == 'valid', "Mode must be one of ['train', 'test', 'valid']"
         origin_path = None
         gt_path = None
@@ -26,7 +26,7 @@ class ISIC2018ImageLoader(ImageLoader):
             origin_path, gt_path = get_path(root, 'Test')
         if mode == 'valid':
             origin_path, gt_path = get_path(root, 'Validation')
-        super().__init__(origin_path, gt_path, image_size, mode, augmentation_prob)
+        super().__init__(origin_path, gt_path, dataset_config, mode, augmentation_prob)
 
     def get_gt_file_name(self, origin_image_name: str, extension: str) -> str:
         return origin_image_name + "_segmentation.png"
@@ -35,41 +35,41 @@ class ISIC2018ImageLoader(ImageLoader):
 class ISIC2018DataLoader(DataLoader):
     @staticmethod
     def generate_loaders(config) -> (DataLoader, DataLoader, DataLoader):
+        if config.processed_image.size is None:
+            _, size = calculate_image(config.image_size, config.origin_image.size)
+            config.processed_image.size = size
+
         train_loader = ISIC2018DataLoader(
             root=config.root_path,
-            image_size=config.image_size,
-            batch_size=config.batch_size,
-            num_workers=config.num_workers,
+            dataset_config=config,
             mode='train',
             augmentation_prob=config.augmentation_prob
         )
         valid_loader = ISIC2018DataLoader(
             root=config.root_path,
-            image_size=config.image_size,
-            batch_size=config.batch_size,
-            num_workers=config.num_workers,
+            dataset_config=config,
             mode='valid',
             augmentation_prob=0.
         )
         test_loader = ISIC2018DataLoader(
             root=config.root_path,
-            image_size=config.image_size,
-            batch_size=config.batch_size,
-            num_workers=config.num_workers,
+            dataset_config=config,
             mode='test',
             augmentation_prob=0.
         )
-        _, size = calculate_image(config.image_size, config.origin_image.size)
-        config.processed_image = ConfigDict()
-        config.processed_image.size = size
 
         return train_loader, valid_loader, test_loader
 
-    def __init__(self, root, image_size, batch_size, num_workers=2, mode='train',
+    def __init__(self, root, dataset_config, mode='train',
                  augmentation_prob=0.4):
         super().__init__(
-            dataset=ISIC2018ImageLoader(root, image_size, mode, augmentation_prob),
-            batch_size=batch_size,
+            dataset=ISIC2018ImageLoader(
+                root=root,
+                dataset_config=dataset_config,
+                mode=mode,
+                augmentation_prob=augmentation_prob
+            ),
+            batch_size=dataset_config.batch_size,
             shuffle=True,
-            num_workers=num_workers
+            num_workers=dataset_config.num_workers
         )

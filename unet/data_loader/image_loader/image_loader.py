@@ -18,7 +18,7 @@ class ImageLoader(Dataset):
             self,
             origin_image_path,
             gt_image_path,
-            image_size=224,
+            dataset_config,
             mode='train',
             augmentation_prob=0.4,
             support_types: [str] = None
@@ -31,11 +31,12 @@ class ImageLoader(Dataset):
         self.ground_truth_path = gt_image_path
         self.image_paths = [join(origin_image_path, f) for f in listdir(origin_image_path)
                             if isfile(join(origin_image_path, f)) and splitext(f)[1][1:] in support_types]
-        self.image_size = image_size
+        self.image_size = dataset_config.image_size
         self.mode = mode
         self.RotationDegree = [0, 90, 180, 270]
         self.augmentation_prob = augmentation_prob
-        print("image count in {} path :{}".format(self.mode, len(self.image_paths)))
+        self.dataset_config = dataset_config
+        print(f"Dataset Type: {self.mode}, image count: {len(self.image_paths)}")
 
     def get_gt_file_name(self, origin_image_name: str, extension: str) -> str:
         assert False, "Need to implement this method in child class"
@@ -51,7 +52,9 @@ class ImageLoader(Dataset):
         image = Image.open(image_path)
         GT = Image.open(GT_path)
 
-        aspect_ratio, resize_image_size = calculate_image(self.image_size, image.size)
+        resize_image_size = self.dataset_config.processed_image.size
+
+        aspect_ratio = resize_image_size[1] / resize_image_size[0]
 
         Transform = []
 
