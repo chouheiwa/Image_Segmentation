@@ -5,6 +5,7 @@ import numpy as np
 import torch
 from scipy import ndimage
 from torch import nn
+from torch.nn.functional import interpolate, grid_sample
 
 from unet.network.module.transformer import Transformer, DecoderCup, SegmentationHead
 from unet.network.network_type import NetworkType
@@ -46,6 +47,7 @@ class TransUNet(NetworkType):
         self.num_classes = num_classes
         self.zero_head = zero_head
         self.classifier = config.classifier
+        self.img_size = img_size
         self.transformer = Transformer(config, img_size, vis)
         self.decoder = DecoderCup(config)
         self.segmentation_head = SegmentationHead(
@@ -82,18 +84,15 @@ class TransUNet(NetworkType):
                 posemb = posemb[:, 1:]
                 self.transformer.embeddings.position_embeddings.copy_(posemb)
             else:
-                logger.info("load_pretrained: resized variant: %s to %s" % (posemb.size(), posemb_new.size()))
-                ntok_new = posemb_new.size(1)
+                print("load_pretrained: resized variant: %s to %s" % (posemb.size(), posemb_new.size()))
                 if self.classifier == "seg":
                     _, posemb_grid = posemb[:, :1], posemb[0, 1:]
-                gs_old = int(np.sqrt(len(posemb_grid)))
+                ntok_new = posemb_new.size(1)
                 gs_new = int(np.sqrt(ntok_new))
-                print('load_pretrained: grid-size from %s to %s' % (gs_old, gs_new))
-                posemb_grid = posemb_grid.reshape(gs_old, gs_old, -1)
-                zoom = (gs_new / gs_old, gs_new / gs_old, 1)
-                posemb_grid = ndimage.zoom(posemb_grid, zoom, order=1)  # th2np
-                posemb_grid = posemb_grid.reshape(1, gs_new * gs_new, -1)
-                posemb = posemb_grid
+                if gs_new * gs_new == ntok_new:
+                    posemb = self.zoom_reshape(posemb_grid, posemb_new)
+                else:
+                    posemb = self.resize_position_embedding(posemb, posemb_new)
                 self.transformer.embeddings.position_embeddings.copy_(np2th(posemb))
 
             # Encoder whole
@@ -116,3 +115,30 @@ class TransUNet(NetworkType):
     @classmethod
     def cache_model_name(cls, base_config) -> str:
         return join(super().cache_model_name(base_config), base_config.network.transformer.pretrained_model_name)
+
+    def zoom_reshape(self, posemb_grid, posemb_new: nn.Parameter):
+        ntok_new = posemb_new.size(1)
+        gs_old = int(np.sqrt(len(posemb_grid)))
+        gs_new = int(np.sqrt(ntok_new))
+        print('load_pretrained: grid-size from %s to %s' % (gs_old, gs_new))
+        posemb_grid = posemb_grid.reshape(gs_old, gs_old, -1)
+        zoom = (gs_new / gs_old, gs_new / gs_old, 1)
+        posemb_grid = ndimage.zoom(posemb_grid, zoom, order=1)  # th2np
+        return posemb_grid.reshape(1, gs_new * gs_new, -1)
+
+    def resize_position_embedding(self, posemb, posemb_new):
+        n_posemb = posemb.size(1)
+        gs_old = int(np.sqrt(n_posemb - 1))
+        posemb_grid = posemb[:, 1:].transpose(1, 2).reshape(1, -1, gs_old, gs_old)
+        grid_size = self.config.patches.grid
+        patch_size = (self.img_size[0] // 16 // grid_size[0], self.img_size[1] // 16 // grid_size[1])
+        patch_size_real = (patch_size[0] * 16, patch_size[1] * 16)
+        gs_new_h = self.img_size[0] // patch_size_real[0]
+        gs_new_w = self.img_size[1] // patch_size_real[1]
+        x = torch.linspace(-1, 1, gs_new_w)
+        y = torch.linspace(-1, 1, gs_new_h)
+        x_grid, y_grid = torch.meshgrid(x, y, indexing='ij')
+        grid = torch.stack((x_grid, y_grid), -1).unsqueeze(0)
+        posemb_grid_new = grid_sample(posemb_grid, grid, align_corners=True)
+        posemb_new_resized = posemb_grid_new.reshape(1, posemb_new.size(2), -1).transpose(1, 2)
+        return posemb_new_resized.numpy()
