@@ -159,7 +159,12 @@ class Solver(object):
         # Train for Encoder
         lr = self.lr
         best_unet_score = 0.
-        best_epoch = 0
+
+        if self.current_epoch != 0:
+            with open(join(best_network_path, 'best_data.txt'), 'r') as f:
+                text = f.read().split(',')
+                best_unet_score = float(text[1])
+
         for epoch in range(self.current_epoch, self.num_epochs):
             evaluator = BinaryFilterEvaluator(epoch=epoch, total_epoch=self.num_epochs, type='train')
             self.unet.train(True)
@@ -221,10 +226,10 @@ class Solver(object):
                 torch.save(best_unet, join(best_network_path, 'network.pth'))
                 torch.save(best_unet_optimizer, join(best_network_path, 'optimizer.pth'))
                 # save best epoch
-                with open(join(best_network_path, 'best_epoch.txt'), 'w') as f:
-                    f.write(str(epoch))
+                with open(join(best_network_path, 'best_data.txt'), 'w') as f:
+                    f.write(f'{epoch},{best_unet_score}')
 
-            if epoch % self.save_interval == 0:
+            if epoch % self.save_interval == self.save_interval - 1:
                 if not os.path.exists(join(cache_path, str(epoch))):
                     os.makedirs(join(cache_path, str(epoch)))
                 torch.save(self.unet.state_dict(), join(cache_path, str(epoch), 'network.pth'))
@@ -236,8 +241,9 @@ class Solver(object):
     def test(self):
         cache_path = self.get_cache_model_path()
         best_network_path = os.path.join(cache_path, 'best_network')
-        with open(join(best_network_path, 'best_epoch.txt'), 'w') as f:
-            best_epoch = int(f.read())
+        with open(join(best_network_path, 'best_data.txt'), 'r') as f:
+            text = f.read().split(',')
+            best_epoch = int(text[0])
         del self.unet
         self.build_model(load_current_epoch=False)
         self.unet.load_state_dict(torch.load(join(best_network_path, 'network.pth')))
