@@ -24,7 +24,10 @@ class ISICImageLoader(ImageLoader):
         super().__init__(origin_path, gt_path, dataset_config, mode, augmentation_prob)
 
     def get_gt_file_name(self, origin_image_name: str, extension: str) -> str:
-        return origin_image_name + "_segmentation.png"
+        try:
+            return self.dataset_config.gt_format.format(origin_image_name)
+        except:
+            return origin_image_name + "_segmentation.png"
 
 
 class ISICDataLoader(DataLoader):
