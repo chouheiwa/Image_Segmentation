@@ -18,12 +18,11 @@ from unet.network import get_network, get_cached_pretrained_model
 
 
 class Solver(object):
-    def __init__(self, config, train_loader, valid_loader, test_loader):
+    def __init__(self, config, train_loader, valid_loader):
         self.config = config
         # Data loader
         self.train_loader = train_loader
         self.valid_loader = valid_loader
-        self.test_loader = test_loader
 
         # Models
         self.unet = None
@@ -87,6 +86,9 @@ class Solver(object):
         return joined_path
 
     def get_cached_pretrained_epoch(self):
+        if not self.config.need_record:
+            return 0
+
         joined_path = self.get_cache_model_path()
 
         # 获取文件夹列表

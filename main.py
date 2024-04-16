@@ -33,8 +33,8 @@ def main(config):
 
     print(config)
 
-    train_loader, valid_loader, test_loader = get_data_loader(config.dataset)
-    solver = Solver(config, train_loader, valid_loader, test_loader)
+    train_loader, valid_loader = get_data_loader(config.dataset)
+    solver = Solver(config, train_loader, valid_loader)
 
     # Train and sample the images
     if config.mode == 'train':

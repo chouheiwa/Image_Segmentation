@@ -93,4 +93,4 @@ class YamlReader:
 
 if __name__ == '__main__':
     # print(merge_dicts_deep({'a': 1, 'b': {'c': 1}}, {'a': 3, 'b': {'c': 4}}))
-    print(YamlReader(join(get_root_dir(), 'config', 'full-config', 'own_server', 'TransUNet.yaml')).yaml)
+    print(YamlReader(join(get_root_dir(), 'config', 'full-config', 'own_server_data', 'TransUNet.yaml')).yaml)
