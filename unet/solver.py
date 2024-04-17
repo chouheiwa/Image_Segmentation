@@ -296,11 +296,10 @@ class Solver(object):
             GT = GT.to(self.device)
             SR = F.sigmoid(self.unet(images))
             valid_evaluator.evaluate(SR, GT, images.size(0), 0)
-            if isValid:
+            if not isValid:
                 # 将SR输出的概率值转换为二值化的图像
                 SR = SR > valid_evaluator.threshold
-                SR = SR * 255
-                SR = SR.type(torch.uint8)
+                SR = SR.float()
                 # 写入图像
                 torchvision.utils.save_image(
                     SR.data.cpu(),
