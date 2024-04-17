@@ -300,6 +300,7 @@ class Solver(object):
                 # 将SR输出的概率值转换为二值化的图像
                 SR = SR > valid_evaluator.threshold
                 SR = SR * 255
+                SR = SR.type(torch.uint8)
                 # 写入图像
                 torchvision.utils.save_image(
                     SR.data.cpu(),
