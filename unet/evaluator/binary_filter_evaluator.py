@@ -121,7 +121,7 @@ def get_auc(SR, GT, threshold=0.5):
 
 
 class BinaryFilterEvaluator:
-    def __init__(self, epoch, total_epoch, type):
+    def __init__(self, epoch, total_epoch, type, threshold=0.5):
         self.epoch = epoch
         self.total_epoch = total_epoch
         self.type = type
@@ -137,18 +137,19 @@ class BinaryFilterEvaluator:
         self.AP = 0.  # Average Precision
         self.epoch_loss = 0.
         self.length = 0
+        self.threshold = threshold
 
     def evaluate(self, y_pred, y_true, length, loss):
-        self.acc += get_accuracy(y_pred, y_true)
-        self.SE += get_sensitivity(y_pred, y_true)
-        self.SP += get_specificity(y_pred, y_true)
-        self.PC += get_precision(y_pred, y_true)
-        self.F1 += get_F1(y_pred, y_true)
-        self.JS += get_JS(y_pred, y_true)
-        self.DC += get_DC(y_pred, y_true)
-        self.MIOU += get_iou(y_pred, y_true)
-        # self.AUC += get_auc(y_pred, y_true)
-        # self.AP += get_ap(y_pred, y_true)
+        self.acc += get_accuracy(y_pred, y_true, self.threshold)
+        self.SE += get_sensitivity(y_pred, y_true, self.threshold)
+        self.SP += get_specificity(y_pred, y_true, self.threshold)
+        self.PC += get_precision(y_pred, y_true, self.threshold)
+        self.F1 += get_F1(y_pred, y_true, self.threshold)
+        self.JS += get_JS(y_pred, y_true, self.threshold)
+        self.DC += get_DC(y_pred, y_true, self.threshold)
+        self.MIOU += get_iou(y_pred, y_true, self.threshold)
+        # self.AUC += get_auc(y_pred, y_true, self.threshold)
+        # self.AP += get_ap(y_pred, y_true, self.threshold)
         self.epoch_loss += loss
         self.length += length
 

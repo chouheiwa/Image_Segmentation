@@ -5,3 +5,4 @@ pip install ml_collections
 pip install scipy
 pip install colored
 pip install scikit-learn
+pip install pillow

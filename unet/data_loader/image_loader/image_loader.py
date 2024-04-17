@@ -110,7 +110,7 @@ class ImageLoader(Dataset):
         Norm_ = T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         image = Norm_(image)
 
-        return image, GT
+        return image, GT, origin_image_name
 
     def __len__(self):
         """Returns the total number of font files."""

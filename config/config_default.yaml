@@ -22,7 +22,7 @@ result_path: 'result/' # The result of the training will be saved in this path. 
 cuda_idx: 1
 
 cache_base_path: 'cache_model' # The final cache path will be "{cache_base_path}/{dataset_path}/{network_path}/{epoch}"
-
+threshold: 0.5
 # The definitions of the config, all the yaml can have this function.
 # When all the yaml files are loaded, this filed will be removed.
 definitions:

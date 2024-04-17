@@ -4,6 +4,7 @@ from os.path import join
 
 import torch
 import torch.nn.functional as F
+import torchvision
 from termcolor import colored
 from torch import distributed
 from torch import optim
@@ -170,14 +171,13 @@ class Solver(object):
         for epoch in range(self.current_epoch, self.num_epochs):
             evaluator = BinaryFilterEvaluator(epoch=epoch, total_epoch=self.num_epochs, type='train')
             self.unet.train(True)
-            for i, (images, GT) in enumerate(
+            for i, (images, GT, _) in enumerate(
                     tqdm(
                         iterable=self.train_loader,
                         desc=f"{self.model_type} Epoch {epoch} Training Processing"
                     )
             ):
                 # GT : Ground Truth
-
                 images = images.to(self.device)
                 GT = GT.to(self.device)
 
@@ -277,15 +277,37 @@ class Solver(object):
             f.close()
 
     def _valid_(self, isValid=True, epoch=None):
-        valid_evaluator = BinaryFilterEvaluator(epoch=epoch, total_epoch=self.num_epochs, type='valid')
+        valid_evaluator = BinaryFilterEvaluator(
+            epoch=epoch,
+            total_epoch=self.num_epochs,
+            type='valid',
+            threshold=self.config.threshold
+        )
         self.unet.train(False)
         self.unet.eval()
 
-        for i, (images, GT) in enumerate(self.valid_loader):
+        for i, (images, GT, origin_image_name) in enumerate(
+                tqdm(
+                    iterable=self.valid_loader,
+                    desc=f"{self.model_type} Epoch {epoch} Validation Processing"
+                )
+        ):
             images = images.to(self.device)
             GT = GT.to(self.device)
             SR = F.sigmoid(self.unet(images))
             valid_evaluator.evaluate(SR, GT, images.size(0), 0)
+            if isValid:
+                # 将SR输出的概率值转换为二值化的图像
+                SR = SR > valid_evaluator.threshold
+                SR = SR * 255
+                # 写入图像
+                torchvision.utils.save_image(
+                    SR.data.cpu(),
+                    os.path.join(
+                        self.result_path,
+                        f'{origin_image_name}.png'
+                    )
+                )
 
         valid_evaluator.calculate()
         unet_score = valid_evaluator.JS + valid_evaluator.DC
