@@ -56,3 +56,18 @@ class LoggerScalar:
                 scalar_value=my_fantastic_logging['DC'],
                 global_step=epoch
             )
+            writer.add_scalar(
+                tag=f"{my_fantastic_logging['type']}/Mean Intersection over Union",
+                scalar_value=my_fantastic_logging['MIOU'],
+                global_step=epoch
+            )
+            writer.add_scalar(
+                tag=f"{my_fantastic_logging['type']}/Area Under the Curve",
+                scalar_value=my_fantastic_logging['AUC'],
+                global_step=epoch
+            )
+            writer.add_scalar(
+                tag=f"{my_fantastic_logging['type']}/Average Precision",
+                scalar_value=my_fantastic_logging['AP'],
+                global_step=epoch
+            )

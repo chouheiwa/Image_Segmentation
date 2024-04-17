@@ -249,12 +249,31 @@ class Solver(object):
         del self.unet
         self.build_model(load_current_epoch=False)
         self.unet.load_state_dict(torch.load(join(best_network_path, 'network.pth')))
-        acc, SE, SP, PC, F1, JS, DC = self._valid_(False)
+        valid_evaluator = self._valid_(False)
+        result_path = os.path.join(self.result_path, 'result.csv')
+
+        first_create = os.path.exists(result_path)
+
         with open(os.path.join(self.result_path, 'result.csv'), 'a', encoding='utf-8', newline='') as f:
             wr = csv.writer(f)
-            wr.writerow([get_cached_pretrained_model(self.config), acc, SE, SP, PC, F1, JS, DC, self.lr, best_epoch,
-                         self.num_epochs,
-                         self.num_epochs_decay, self.augmentation_prob])
+            if not first_create:
+                wr.writerow([
+                    'Model',
+                    'Miou', 'F1_score', 'Accuracy', 'Specificity',
+                    'Sensitivity', 'DSC', 'AP', 'AUC',
+                    'Jaccard Similarity', 'Precision',
+                    'LR', 'Best Epoch', 'Total Epoch',
+                    'Decay Epoch', 'Augmentation Prob'
+                ])
+
+            wr.writerow([
+                get_cached_pretrained_model(self.config),
+                valid_evaluator.MIOU, valid_evaluator.F1, valid_evaluator.acc, valid_evaluator.SP,
+                valid_evaluator.SE, valid_evaluator.DC, valid_evaluator.AP, valid_evaluator.AUC,
+                valid_evaluator.JS, valid_evaluator.PC,
+                self.lr, best_epoch, self.num_epochs,
+                self.num_epochs_decay, self.augmentation_prob]
+            )
             f.close()
 
     def _valid_(self, isValid=True, epoch=None):
@@ -272,8 +291,7 @@ class Solver(object):
         unet_score = valid_evaluator.JS + valid_evaluator.DC
 
         if not isValid:
-            return valid_evaluator.acc, valid_evaluator.SE, valid_evaluator.SP, valid_evaluator.PC, valid_evaluator.F1, valid_evaluator.JS, valid_evaluator.DC
-
+            return valid_evaluator
         print(valid_evaluator.to_log())
         self.log.plot_data(my_fantastic_logging=valid_evaluator.to_tensorboard())
         '''

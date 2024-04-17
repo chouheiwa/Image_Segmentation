@@ -4,3 +4,4 @@ pip install einops
 pip install ml_collections
 pip install scipy
 pip install colored
+pip install sklearn

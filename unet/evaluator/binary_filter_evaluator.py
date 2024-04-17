@@ -1,8 +1,25 @@
 import torch
+from sklearn.metrics import roc_auc_score, average_precision_score
 
 
 # SR : Segmentation Result
 # GT : Ground Truth
+
+def get_iou(SR, GT, threshold=0.5):
+    SR = SR > threshold
+    GT = GT == torch.max(GT)
+
+    # Intersection
+    intersection = torch.sum(SR & GT)
+
+    # Union
+    union = torch.sum(SR | GT)
+
+    # IoU
+    iou = float(intersection) / (float(union) + 1e-6)
+
+    return iou
+
 
 def get_accuracy(SR, GT, threshold=0.5):
     SR = SR > threshold
@@ -91,6 +108,18 @@ def get_DC(SR, GT, threshold=0.5):
     return DC
 
 
+def get_ap(SR, GT, threshold=0.5):
+    SR = SR > threshold
+    GT = GT == torch.max(GT)
+    return average_precision_score(SR, GT)
+
+
+def get_auc(SR, GT, threshold=0.5):
+    SR = SR > threshold
+    GT = GT == torch.max(GT)
+    return roc_auc_score(SR, GT)
+
+
 class BinaryFilterEvaluator:
     def __init__(self, epoch, total_epoch, type):
         self.epoch = epoch
@@ -103,6 +132,9 @@ class BinaryFilterEvaluator:
         self.F1 = 0.  # F1 Score
         self.JS = 0.  # Jaccard Similarity
         self.DC = 0.  # Dice Coefficient
+        self.MIOU = 0.  # Mean Intersection over Union
+        self.AUC = 0.  # Area Under the Curve
+        self.AP = 0.  # Average Precision
         self.epoch_loss = 0.
         self.length = 0
 
@@ -114,6 +146,9 @@ class BinaryFilterEvaluator:
         self.F1 += get_F1(y_pred, y_true)
         self.JS += get_JS(y_pred, y_true)
         self.DC += get_DC(y_pred, y_true)
+        self.MIOU += get_iou(y_pred, y_true)
+        self.AUC += get_auc(y_pred, y_true)
+        self.AP += get_ap(y_pred, y_true)
         self.epoch_loss += loss
         self.length += length
 
@@ -125,18 +160,23 @@ class BinaryFilterEvaluator:
         self.F1 /= self.length
         self.JS /= self.length
         self.DC /= self.length
+        self.MIOU /= self.length
+        self.AUC /= self.length
+        self.AP /= self.length
 
     def to_log(self):
         if self.type == 'train':
-            return 'Epoch [%d/%d], Loss: %.4f, \n[Training] Acc: %.4f, SE: %.4f, SP: %.4f, PC: %.4f, F1: %.4f, JS: %.4f, DC: %.4f' % (
+            return 'Epoch [%d/%d], Loss: %.4f, \n[Training] Acc: %.4f, SE: %.4f, SP: %.4f, PC: %.4f, F1: %.4f, JS: %.4f, DC: %.4f, MIOU: %.4f, AUC: %.4f, AP: %.4f' % (
                 self.epoch + 1, self.total_epoch, self.epoch_loss, self.acc, self.SE, self.SP, self.PC,
                 self.F1, self.JS,
-                self.DC)
+                self.DC, self.MIOU, self.AUC, self.AP
+            )
 
-        return '[Validation] Acc: %.4f, SE: %.4f, SP: %.4f, PC: %.4f, F1: %.4f, JS: %.4f, DC: %.4f' % (
+        return '[Validation] Acc: %.4f, SE: %.4f, SP: %.4f, PC: %.4f, F1: %.4f, JS: %.4f, DC: %.4f, MIOU: %.4f, AUC: %.4f, AP: %.4f' % (
             self.acc, self.SE, self.SP, self.PC,
             self.F1, self.JS,
-            self.DC)
+            self.DC, self.MIOU, self.AUC, self.AP
+        )
 
     def to_tensorboard(self):
         return {
@@ -149,5 +189,8 @@ class BinaryFilterEvaluator:
             'PC': self.PC,
             'F1': self.F1,
             'JS': self.JS,
-            'DC': self.DC
+            'DC': self.DC,
+            'MIOU': self.MIOU,
+            'AUC': self.AUC,
+            'AP': self.AP
         }
