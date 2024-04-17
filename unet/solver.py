@@ -268,9 +268,9 @@ class Solver(object):
 
             wr.writerow([
                 get_cached_pretrained_model(self.config),
-                valid_evaluator.MIOU, valid_evaluator.F1, valid_evaluator.acc, valid_evaluator.SP,
-                valid_evaluator.SE, valid_evaluator.DC, valid_evaluator.AP, valid_evaluator.AUC,
-                valid_evaluator.JS, valid_evaluator.PC,
+                valid_evaluator.MIOU * 100, valid_evaluator.F1 * 100, valid_evaluator.acc * 100, valid_evaluator.SP * 100,
+                valid_evaluator.SE * 100, valid_evaluator.DC * 100, valid_evaluator.AP * 100, valid_evaluator.AUC * 100,
+                valid_evaluator.JS * 100, valid_evaluator.PC * 100,
                 self.lr, best_epoch, self.num_epochs,
                 self.num_epochs_decay, self.augmentation_prob]
             )
