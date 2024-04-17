@@ -147,8 +147,8 @@ class BinaryFilterEvaluator:
         self.JS += get_JS(y_pred, y_true)
         self.DC += get_DC(y_pred, y_true)
         self.MIOU += get_iou(y_pred, y_true)
-        self.AUC += get_auc(y_pred, y_true)
-        self.AP += get_ap(y_pred, y_true)
+        # self.AUC += get_auc(y_pred, y_true)
+        # self.AP += get_ap(y_pred, y_true)
         self.epoch_loss += loss
         self.length += length
 
