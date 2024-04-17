@@ -111,13 +111,13 @@ def get_DC(SR, GT, threshold=0.5):
 def get_ap(SR, GT, threshold=0.5):
     SR = SR > threshold
     GT = GT == torch.max(GT)
-    return average_precision_score(SR, GT)
+    return average_precision_score(SR.cpu(), GT.cpu())
 
 
 def get_auc(SR, GT, threshold=0.5):
     SR = SR > threshold
     GT = GT == torch.max(GT)
-    return roc_auc_score(SR, GT)
+    return roc_auc_score(SR.cpu(), GT.cpu())
 
 
 class BinaryFilterEvaluator:
