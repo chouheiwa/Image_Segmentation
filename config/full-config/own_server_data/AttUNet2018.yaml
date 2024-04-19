@@ -1,0 +1,4 @@
+parent_path: 'default.yaml'
+definitions:
+  network_path: '../../network/AttUNet.yaml'
+  dataset_path: 'isic/2018_task.yaml'

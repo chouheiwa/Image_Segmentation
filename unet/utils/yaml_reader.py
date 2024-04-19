@@ -1,3 +1,4 @@
+import re
 from os.path import dirname, join
 from ml_collections import ConfigDict
 import yaml
@@ -7,7 +8,9 @@ suffix = '_path'
 
 
 def is_relative(path):
-    return not path.startswith('/')
+    # 如果以/或者~或者\w:\开头，那么就是绝对路径
+    # 正则
+    return not re.match(r'^[/|~|\w:]', path)
 
 
 class YamlReader:

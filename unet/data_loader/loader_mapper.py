@@ -10,6 +10,7 @@ dataloader_mapping = {
     'isic-2018-task-1': ISIC2018DataLoader.generate_loaders,
     'isic-2018-task': ISICDataLoader.generate_loaders,
     'isic-2017-task': ISICDataLoader.generate_loaders,
+    'isic-2016-task': ISICDataLoader.generate_loaders,
 }
 
 

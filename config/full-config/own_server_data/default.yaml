@@ -1,0 +1,7 @@
+parent_path: '../../config_default.yaml'
+
+tensorboard_path: '/home/chouheiwa/tf-logs/UNet'
+need_record: False
+max_tries: 3
+definitions:
+  dataset_path: 'isic/2018_task.yaml'

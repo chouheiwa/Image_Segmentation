@@ -1,0 +1,16 @@
+root_path: '/home/chouheiwa/machine_learning/dataset/ISIC/isic2017'
+type: 'isic-2017-task'
+gt_format: '{}_segmentation.png'
+image_size: 256
+
+origin_image:
+  size: [ 256, 256 ] # [ height, width ]
+
+processed_image:
+  size: null # [ height, width ]
+
+batch_size: 4
+num_workers: 8
+augmentation_prob: 0.4
+
+batch_dice: False

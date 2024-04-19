@@ -8,7 +8,7 @@ import torchvision
 from termcolor import colored
 from torch import distributed
 from torch import optim
-from torch.nn import BCELoss
+from torch.nn import BCELoss, BCEWithLogitsLoss
 from tqdm import tqdm
 
 from unet.evaluator import BinaryFilterEvaluator
@@ -47,7 +47,13 @@ class Solver(object):
             #     ignore_label=config.ignore_label,
             #     dice_class=MemoryEfficientSoftDiceLoss
             # )
-            self.criterion = BCELoss()
+            self.criterion = DCAndBCELoss(
+                bce_kwargs={},
+                soft_dice_kwargs={
+                    'batch_dice': config.dataset.batch_dice,
+                    'do_bg': True, 'smooth': 1e-5, 'ddp': self.is_ddp
+                }
+            )  # Use BCE due to we will use Sigmoid by ourself
 
         print("Loss class:", str(self.criterion.__class__.__name__))
         self.augmentation_prob = config.dataset.augmentation_prob
@@ -197,7 +203,7 @@ class Solver(object):
                 loss.backward()
                 self.optimizer.step()
 
-                evaluator.evaluate(SR_probs, GT, images.size(0), current_loss)
+                evaluator.evaluate(SR_probs, GT, 1, current_loss)
 
             evaluator.calculate()
 
@@ -259,18 +265,19 @@ class Solver(object):
             if not first_create:
                 wr.writerow([
                     'Model',
-                    'Miou', 'F1_score', 'Accuracy', 'Specificity',
+                    'Miou(Jaccard Similarity)', 'F1_score', 'Accuracy', 'Specificity',
                     'Sensitivity', 'DSC', 'AP', 'AUC',
-                    'Jaccard Similarity', 'Precision',
+                    'Precision',
                     'LR', 'Best Epoch', 'Total Epoch',
                     'Decay Epoch', 'Augmentation Prob'
                 ])
 
             wr.writerow([
                 get_cached_pretrained_model(self.config),
-                valid_evaluator.MIOU * 100, valid_evaluator.F1 * 100, valid_evaluator.acc * 100, valid_evaluator.SP * 100,
+                valid_evaluator.MIOU * 100, valid_evaluator.F1 * 100, valid_evaluator.acc * 100,
+                valid_evaluator.SP * 100,
                 valid_evaluator.SE * 100, valid_evaluator.DC * 100, valid_evaluator.AP * 100, valid_evaluator.AUC * 100,
-                valid_evaluator.JS * 100, valid_evaluator.PC * 100,
+                valid_evaluator.PC * 100,
                 self.lr, best_epoch, self.num_epochs,
                 self.num_epochs_decay, self.augmentation_prob]
             )
@@ -295,19 +302,24 @@ class Solver(object):
             images = images.to(self.device)
             GT = GT.to(self.device)
             SR = F.sigmoid(self.unet(images))
-            valid_evaluator.evaluate(SR, GT, images.size(0), 0)
+            SR_flat = SR.view(SR.size(0), -1)
+
+            GT_flat = GT.view(GT.size(0), -1)
+            loss = self.criterion(SR_flat, GT_flat)
+            valid_evaluator.evaluate(SR, GT, 1, loss.item())
             if not isValid:
                 # 将SR输出的概率值转换为二值化的图像
                 SR = SR > valid_evaluator.threshold
                 SR = SR.float()
-                # 写入图像
-                torchvision.utils.save_image(
-                    SR.data.cpu(),
-                    os.path.join(
-                        self.result_path,
-                        f'{origin_image_name}.png'
+
+                for i in range(images.size(0)):
+                    torchvision.utils.save_image(
+                        SR[i].data.cpu(),
+                        os.path.join(
+                            self.result_path,
+                            f'{origin_image_name[i]}.png'
+                        )
                     )
-                )
 
         valid_evaluator.calculate()
         unet_score = valid_evaluator.JS + valid_evaluator.DC

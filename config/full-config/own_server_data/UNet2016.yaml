@@ -1,0 +1,4 @@
+parent_path: 'default.yaml'
+definitions:
+  network_path: '../../network/UNet.yaml'
+  dataset_path: 'isic/2016_task.yaml'

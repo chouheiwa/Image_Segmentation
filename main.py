@@ -28,6 +28,7 @@ def main(config):
     if not os.path.exists(config.result_path):
         os.makedirs(config.result_path)
     config.result_path = os.path.join(config.result_path, config.dataset.type, model_type)
+    config.tensorboard_path = os.path.join(config.tensorboard_path, config.dataset.type, model_type)
     if not os.path.exists(config.result_path):
         os.makedirs(config.result_path)
 

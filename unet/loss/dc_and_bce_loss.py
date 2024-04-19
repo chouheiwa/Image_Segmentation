@@ -25,7 +25,7 @@ class DCAndBCELoss(nn.Module):
         self.weight_ce = weight_ce
         self.use_ignore_label = use_ignore_label
 
-        self.ce = nn.BCEWithLogitsLoss(**bce_kwargs)
+        self.ce = nn.BCELoss(**bce_kwargs)
         self.dc = dice_class(apply_nonlin=torch.sigmoid, **soft_dice_kwargs)
 
     def forward(self, net_output: torch.Tensor, target: torch.Tensor):

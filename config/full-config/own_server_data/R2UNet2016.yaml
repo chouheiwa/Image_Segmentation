@@ -1,0 +1,5 @@
+parent_path: 'default.yaml'
+definitions:
+  network_path: '../../network/R2UNet.yaml'
+  dataset_path: 'isic/2016_task.yaml'
+
