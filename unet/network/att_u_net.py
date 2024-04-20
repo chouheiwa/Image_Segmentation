@@ -6,13 +6,9 @@ from unet.network.module import ConvBlock, UpConv, AttentionBlock
 
 
 class AttUNet(NetworkType):
-
     @classmethod
-    def create_model(cls, config, dataset_config, device, **kwargs):
-        unet = AttUNet(img_ch=config["img_ch"], output_ch=config["output_ch"])
-        unet.base_config = config
-        unet.to(device)
-        return unet
+    def initialize_model(cls, config, dataset_config, device, **kwargs):
+        return AttUNet(img_ch=config["img_ch"], output_ch=config["output_ch"])
 
     def __init__(self, img_ch=3, output_ch=1):
         super(AttUNet, self).__init__()

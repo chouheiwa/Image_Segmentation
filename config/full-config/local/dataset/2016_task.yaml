@@ -1,0 +1,16 @@
+root_path: '/Users/chouheiwa/Desktop/data_isic161718/isic2016'
+type: 'isic-2016-task'
+gt_format: '{}_Segmentation.png'
+image_size: 256
+
+origin_image:
+  size: [ 256, 256 ] # [ height, width ]
+
+processed_image:
+  size: null # [ height, width ]
+
+batch_size: 4
+num_workers: 8
+augmentation_prob: 0.4
+
+batch_dice: False

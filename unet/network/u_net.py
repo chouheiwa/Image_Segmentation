@@ -7,11 +7,8 @@ from unet.network.network_type import NetworkType
 
 class UNet(NetworkType):
     @classmethod
-    def create_model(cls, config, dataset_config, device, **kwargs):
-        unet = UNet(img_ch=config["img_ch"], output_ch=config["output_ch"])
-        unet.base_config = config
-        unet.to(device)
-        return unet
+    def initialize_model(cls, config, dataset_config, device, **kwargs):
+        return UNet(img_ch=config["img_ch"], output_ch=config["output_ch"])
 
     def __init__(self, img_ch=3, output_ch=1):
         super(UNet, self).__init__()

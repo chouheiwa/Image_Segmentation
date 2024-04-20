@@ -10,6 +10,13 @@ class NetworkType(nn.Module):
 
     @classmethod
     def create_model(cls, config, dataset_config, device, **kwargs):
+        model = cls.initialize_model(config, dataset_config, device, **kwargs)
+        model.base_config = config
+        model.to(device)
+        return model
+
+    @classmethod
+    def initialize_model(cls, config, dataset_config, device, **kwargs):
         raise NotImplementedError
 
     @classmethod

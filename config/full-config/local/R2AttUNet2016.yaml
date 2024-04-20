@@ -1,4 +1,4 @@
 parent_path: 'default.yaml'
 definitions:
   network_path: '../../network/R2AttUNet.yaml'
-  dataset_path: 'isic/2016_task.yaml'
+  dataset_path: 'dataset/2016_task.yaml'
