@@ -8,3 +8,4 @@ pip install scikit-learn
 pip install pillow
 
 pip install tensorboard
+pip install termcolor

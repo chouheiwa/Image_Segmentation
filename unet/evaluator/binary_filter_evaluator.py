@@ -84,19 +84,6 @@ def get_F1(SR, GT, threshold=0.5):
     return F1
 
 
-def get_JS(SR, GT, threshold=0.5):
-    # JS : Jaccard similarity
-    SR = SR > threshold
-    GT = GT == torch.max(GT)
-
-    Inter = torch.sum(SR.byte() + GT.byte() == 2)
-    Union = torch.sum(SR.byte() + GT.byte() >= 1)
-
-    JS = float(Inter) / (float(Union) + 1e-6)
-
-    return JS
-
-
 def get_DC(SR, GT, threshold=0.5):
     # DC : Dice Coefficient
     SR = SR > threshold
@@ -130,7 +117,6 @@ class BinaryFilterEvaluator:
         self.SP = 0.  # Specificity
         self.PC = 0.  # Precision
         self.F1 = 0.  # F1 Score
-        self.JS = 0.  # Jaccard Similarity
         self.DC = 0.  # Dice Coefficient
         self.MIOU = 0.  # Mean Intersection over Union
         self.AUC = 0.  # Area Under the Curve
@@ -145,7 +131,6 @@ class BinaryFilterEvaluator:
         self.SP += get_specificity(y_pred, y_true, self.threshold)
         self.PC += get_precision(y_pred, y_true, self.threshold)
         self.F1 += get_F1(y_pred, y_true, self.threshold)
-        self.JS += get_JS(y_pred, y_true, self.threshold)
         self.DC += get_DC(y_pred, y_true, self.threshold)
         self.MIOU += get_iou(y_pred, y_true, self.threshold)
         # self.AUC += get_auc(y_pred, y_true, self.threshold)
@@ -159,7 +144,6 @@ class BinaryFilterEvaluator:
         self.SP /= self.length
         self.PC /= self.length
         self.F1 /= self.length
-        self.JS /= self.length
         self.DC /= self.length
         self.MIOU /= self.length
         self.AUC /= self.length
@@ -167,15 +151,15 @@ class BinaryFilterEvaluator:
 
     def to_log(self):
         if self.type == 'train':
-            return 'Epoch [%d/%d], Loss: %.4f, \n[Training] Acc: %.4f, SE: %.4f, SP: %.4f, PC: %.4f, F1: %.4f, JS: %.4f, DC: %.4f, MIOU: %.4f, AUC: %.4f, AP: %.4f' % (
+            return 'Epoch [%d/%d], Loss: %.4f, \n[Training] Acc: %.4f, SE: %.4f, SP: %.4f, PC: %.4f, F1: %.4f, DC: %.4f, MIOU: %.4f, AUC: %.4f, AP: %.4f' % (
                 self.epoch + 1, self.total_epoch, self.epoch_loss, self.acc, self.SE, self.SP, self.PC,
-                self.F1, self.JS,
+                self.F1,
                 self.DC, self.MIOU, self.AUC, self.AP
             )
 
-        return '[Validation] Acc: %.4f, SE: %.4f, SP: %.4f, PC: %.4f, F1: %.4f, JS: %.4f, DC: %.4f, MIOU: %.4f, AUC: %.4f, AP: %.4f' % (
+        return '[Validation] Acc: %.4f, SE: %.4f, SP: %.4f, PC: %.4f, F1: %.4f, DC: %.4f, MIOU: %.4f, AUC: %.4f, AP: %.4f' % (
             self.acc, self.SE, self.SP, self.PC,
-            self.F1, self.JS,
+            self.F1,
             self.DC, self.MIOU, self.AUC, self.AP
         )
 
@@ -189,7 +173,6 @@ class BinaryFilterEvaluator:
             'SP': self.SP,
             'PC': self.PC,
             'F1': self.F1,
-            'JS': self.JS,
             'DC': self.DC,
             'MIOU': self.MIOU,
             'AUC': self.AUC,

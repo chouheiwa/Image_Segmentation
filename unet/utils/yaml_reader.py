@@ -9,8 +9,13 @@ suffix = '_path'
 
 def is_relative(path):
     # 如果以/或者~或者\w:\开头，那么就是绝对路径
-    # 正则
-    return not re.match(r'^[/|~|\w:]', path)
+    # linux文件开头是/或者~
+    if path.startswith('/') or path.startswith('~'):
+        return False
+    # Windows绝对路径开头是类似C:\的
+    if re.match(r'^\w:', path):
+        return False
+    return True
 
 
 class YamlReader:

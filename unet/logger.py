@@ -47,11 +47,6 @@ class LoggerScalar:
                 global_step=epoch
             )
             writer.add_scalar(
-                tag=f"{my_fantastic_logging['type']}/Jaccard Similarity",
-                scalar_value=my_fantastic_logging['JS'],
-                global_step=epoch
-            )
-            writer.add_scalar(
                 tag=f"{my_fantastic_logging['type']}/Dice Coefficient",
                 scalar_value=my_fantastic_logging['DC'],
                 global_step=epoch

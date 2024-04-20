@@ -47,13 +47,15 @@ class Solver(object):
             #     ignore_label=config.ignore_label,
             #     dice_class=MemoryEfficientSoftDiceLoss
             # )
-            self.criterion = DCAndBCELoss(
-                bce_kwargs={},
-                soft_dice_kwargs={
-                    'batch_dice': config.dataset.batch_dice,
-                    'do_bg': True, 'smooth': 1e-5, 'ddp': self.is_ddp
-                }
-            )  # Use BCE due to we will use Sigmoid by ourself
+            # self.criterion = DCAndBCELoss(
+            #     bce_kwargs={},
+            #     soft_dice_kwargs={
+            #         'batch_dice': config.dataset.batch_dice,
+            #         'do_bg': True, 'smooth': 1e-5, 'ddp': self.is_ddp
+            #     }
+            # )
+            # Use BCE due to we will use Sigmoid by ourselves
+            self.criterion = BCELoss()
 
         print("Loss class:", str(self.criterion.__class__.__name__))
         self.augmentation_prob = config.dataset.augmentation_prob
