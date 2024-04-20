@@ -324,7 +324,7 @@ class Solver(object):
                     )
 
         valid_evaluator.calculate()
-        unet_score = valid_evaluator.JS + valid_evaluator.DC
+        unet_score = valid_evaluator.MIOU + valid_evaluator.DC
 
         if not isValid:
             return valid_evaluator
