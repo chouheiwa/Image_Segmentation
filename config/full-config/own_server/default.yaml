@@ -2,5 +2,11 @@ parent_path: '../../config_default.yaml'
 
 tensorboard_path: '/home/chouheiwa/tf-logs/UNet'
 
+network:
+  img_ch: 1
+
+dataset:
+  batch_size: 6
+
 definitions:
-  dataset_path: 'isic/2018_task_1.yaml'
+  dataset_path: 'ddti/ddti.yaml'

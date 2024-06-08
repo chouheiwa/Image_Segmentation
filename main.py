@@ -34,25 +34,35 @@ def main(config):
 
     print(config)
 
-    train_loader, valid_loader = get_data_loader(config.dataset)
-    solver = Solver(config, train_loader, valid_loader)
+    allLoader = get_data_loader(config.dataset)
 
-    # Train and sample the images
-    if config.mode == 'train':
-        solver.train()
-    elif config.mode == 'test':
-        solver.test()
+    print(f"K-Fold Cross Validation Total: {len(allLoader)}-Fold")
+
+    for i, (train_loader, valid_loader) in enumerate(allLoader):
+        print("Fold: ", i + 1)
+        solver = Solver(config, train_loader, valid_loader, i)
+
+        # Train and sample the images
+        if config.mode == 'train':
+            solver.train()
+        elif config.mode == 'test':
+            solver.test()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--yaml_path', type=str, default='config/full-config/local/TransUNet.yaml',
+    parser.add_argument('--yaml_path', type=str, default='config/full-config/local/R2AttUNet2016.yaml',
                         help='If you set the yaml_path, the config will be read from the yaml file, '
                              'all the other arguments will be ignored.')
 
+    parser.add_argument('--mode', type=str, choices=['train', 'test'])
+
     config = parser.parse_args()
     if config.yaml_path is not None:
+        mode = config.mode
         config = YamlReader(config.yaml_path).yaml
+        if mode is not None:
+            config.mode = mode
 
     main(config)

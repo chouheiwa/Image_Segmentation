@@ -19,12 +19,12 @@ from unet.network import get_network, get_cached_pretrained_model
 
 
 class Solver(object):
-    def __init__(self, config, train_loader, valid_loader):
+    def __init__(self, config, train_loader, valid_loader, fold_index):
         self.config = config
         # Data loader
         self.train_loader = train_loader
         self.valid_loader = valid_loader
-
+        self.fold_index = fold_index
         # Models
         self.unet = None
         self.optimizer = None
@@ -89,7 +89,7 @@ class Solver(object):
         self.build_model()
 
     def get_cache_model_path(self):
-        joined_path = os.path.join(self.config.cache_base_path, get_cached_pretrained_model(self.config))
+        joined_path = os.path.join(self.config.cache_base_path, get_cached_pretrained_model(self.config), f'{self.fold_index}')
         if not os.path.exists(joined_path):
             os.makedirs(joined_path)
         return joined_path
@@ -98,7 +98,7 @@ class Solver(object):
         if not self.config.need_record:
             return 0
 
-        joined_path = self.get_cache_model_path()
+        joined_path = self.get_cache_model_path().__str__()
 
         # 获取文件夹列表
         folders = os.listdir(joined_path)
@@ -131,9 +131,9 @@ class Solver(object):
         if not load_current_epoch:
             return
 
-        cache_path = self.get_cache_model_path()
-        network_path = os.path.join(cache_path, str(self.current_epoch), 'network.pth')
-        optimizer_path = os.path.join(cache_path, str(self.current_epoch), 'optimizer.pth')
+        cache_path = self.get_cache_model_path().__str__()
+        network_path = os.path.join(cache_path, str(self.current_epoch), 'network.pth').__str__()
+        optimizer_path = os.path.join(cache_path, str(self.current_epoch), 'optimizer.pth').__str__()
         print(colored('Loaded network param.', "light_green",
                       attrs=["bold"]))
         self.unet.load_state_dict(torch.load(network_path))
@@ -164,8 +164,8 @@ class Solver(object):
 
         # ====================================== Training ===========================================#
         # ===========================================================================================#
-        cache_path = self.get_cache_model_path()
-        best_network_path = os.path.join(cache_path, 'best_network')
+        cache_path = self.get_cache_model_path().__str__()
+        best_network_path = os.path.join(cache_path, 'best_network').__str__()
 
         # Train for Encoder
         lr = self.lr
@@ -249,8 +249,8 @@ class Solver(object):
         self.test()
 
     def test(self):
-        cache_path = self.get_cache_model_path()
-        best_network_path = os.path.join(cache_path, 'best_network')
+        cache_path = self.get_cache_model_path().__str__()
+        best_network_path = os.path.join(cache_path, 'best_network').__str__()
         with open(join(best_network_path, 'best_data.txt'), 'r') as f:
             text = f.read().split(',')
             best_epoch = int(text[0])
@@ -283,7 +283,6 @@ class Solver(object):
                 self.lr, best_epoch, self.num_epochs,
                 self.num_epochs_decay, self.augmentation_prob]
             )
-            f.close()
 
     def _valid_(self, isValid=True, epoch=None):
         valid_evaluator = BinaryFilterEvaluator(

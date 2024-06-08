@@ -34,7 +34,7 @@ class ISIC2018ImageLoader(ImageLoader):
 
 class ISIC2018DataLoader(DataLoader):
     @staticmethod
-    def generate_loaders(config) -> (DataLoader, DataLoader, DataLoader):
+    def generate_loaders(config) -> [(DataLoader, DataLoader, DataLoader)]:
         if config.processed_image.size is None:
             _, size = calculate_image(config.image_size, config.origin_image.size)
             config.processed_image.size = size
@@ -58,7 +58,7 @@ class ISIC2018DataLoader(DataLoader):
             augmentation_prob=0.
         )
 
-        return train_loader, valid_loader, test_loader
+        return [(train_loader, valid_loader, test_loader)]
 
     def __init__(self, root, dataset_config, mode='train',
                  augmentation_prob=0.4):
@@ -70,6 +70,6 @@ class ISIC2018DataLoader(DataLoader):
                 augmentation_prob=augmentation_prob
             ),
             batch_size=dataset_config.batch_size,
-            shuffle=True,
+            shuffle=False,
             num_workers=dataset_config.num_workers
         )

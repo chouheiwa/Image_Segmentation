@@ -38,7 +38,6 @@ class ImageLoader(Dataset):
         self.dataset_config = dataset_config
         print(f"Dataset Type: {self.mode}, image count: {len(self.image_paths)}")
 
-
     def get_gt_file_name(self, origin_image_name: str, extension: str) -> str:
         assert False, "Need to implement this method in child class"
         return ""
@@ -54,6 +53,9 @@ class ImageLoader(Dataset):
         GT = Image.open(GT_path)
 
         resize_image_size = self.dataset_config.processed_image.size
+
+        if resize_image_size is None:
+            resize_image_size = self.image_size
 
         # aspect_ratio = resize_image_size[1] / resize_image_size[0]
 
@@ -101,7 +103,12 @@ class ImageLoader(Dataset):
         #
         #     Transform = []
 
-        Transform.append(T.Resize(resize_image_size))
+        Transform.append(
+            T.Resize(
+                size=[resize_image_size, resize_image_size],
+                interpolation=T.InterpolationMode.BILINEAR
+            )
+        )
         Transform.append(T.ToTensor())
         Transform = T.Compose(Transform)
         #

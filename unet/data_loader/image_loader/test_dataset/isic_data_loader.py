@@ -32,7 +32,7 @@ class ISICImageLoader(ImageLoader):
 
 class ISICDataLoader(DataLoader):
     @staticmethod
-    def generate_loaders(config) -> (DataLoader, DataLoader):
+    def generate_loaders(config) -> [(DataLoader, DataLoader)]:
         if config.processed_image.size is None:
             _, size = calculate_image(config.image_size, config.origin_image.size)
             config.processed_image.size = size
@@ -49,7 +49,7 @@ class ISICDataLoader(DataLoader):
             mode='valid',
             augmentation_prob=0.
         )
-        return train_loader, valid_loader
+        return [(train_loader, valid_loader)]
 
     def __init__(self, root, dataset_config, mode='train',
                  augmentation_prob=0.4):

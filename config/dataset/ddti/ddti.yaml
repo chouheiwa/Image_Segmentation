@@ -1,4 +1,4 @@
-type: 'isic-2018-task-1'
+type: 'ddti-task'
 root_path: './' # Need to set the real dataset path
 
 image_size: 256
@@ -9,9 +9,9 @@ origin_image:
 processed_image:
   size: null # [ height, width ]
 
-batch_size: 1
+batch_size: 10
 num_workers: 8
 augmentation_prob: 0.4
 
 batch_dice: False
-use_k_fold: False
+use_k_fold: True
